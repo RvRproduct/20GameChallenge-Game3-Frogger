@@ -1,7 +1,5 @@
 // Game and Code By RvRproduct (Roberto Valentino Reynoso)
-using System.Numerics;
-
-public class MoveCommand : ICommand
+public class MoveCommand : Command
 {
     public MoveCommand(Player _player, float _playerX, float _playerY) 
     {
@@ -9,12 +7,12 @@ public class MoveCommand : ICommand
         playerX = _playerX;
         playerY = _playerY;
     }
-    public void Execute()
+    public override void Execute()
     {
         player.MovePlayer(playerX, playerY);
     }
 
-    public void Undo()
+    public override void Undo()
     {
         throw new System.NotImplementedException();
     }

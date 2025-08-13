@@ -1,14 +1,14 @@
 // Game and Code By RvRproduct (Roberto Valentino Reynoso)
-public class DeathCommand : ICommand
+public class DeathCommand : Command
 {
     public DeathCommand(Player player) { }
 
-    public void Execute()
+    public override void Execute()
     {
         player.OnDeath();
     }
 
-    public void Undo()
+    public override void Undo()
     {
         throw new System.NotImplementedException();
     }
