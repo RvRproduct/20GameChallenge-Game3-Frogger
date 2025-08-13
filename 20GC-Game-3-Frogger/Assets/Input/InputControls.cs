@@ -214,6 +214,34 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 }
             ]
+        },
+        {
+            ""name"": ""TestRecording"",
+            ""id"": ""84983b6e-5595-446d-b41a-c1f1d241beaf"",
+            ""actions"": [
+                {
+                    ""name"": ""PlayRecording"",
+                    ""type"": ""Button"",
+                    ""id"": ""a967bb2a-1a00-487f-97e0-279e6d54dc59"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""cb333d46-82d6-4cac-b1e2-5588832915a4"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PlayRecording"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -221,11 +249,15 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
+        // TestRecording
+        m_TestRecording = asset.FindActionMap("TestRecording", throwIfNotFound: true);
+        m_TestRecording_PlayRecording = m_TestRecording.FindAction("PlayRecording", throwIfNotFound: true);
     }
 
     ~@InputControls()
     {
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, InputControls.Player.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_TestRecording.enabled, "This will cause a leak and performance issues, InputControls.TestRecording.Disable() has not been called.");
     }
 
     /// <summary>
@@ -393,6 +425,102 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="PlayerActions" /> instance referencing this action map.
     /// </summary>
     public PlayerActions @Player => new PlayerActions(this);
+
+    // TestRecording
+    private readonly InputActionMap m_TestRecording;
+    private List<ITestRecordingActions> m_TestRecordingActionsCallbackInterfaces = new List<ITestRecordingActions>();
+    private readonly InputAction m_TestRecording_PlayRecording;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "TestRecording".
+    /// </summary>
+    public struct TestRecordingActions
+    {
+        private @InputControls m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public TestRecordingActions(@InputControls wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "TestRecording/PlayRecording".
+        /// </summary>
+        public InputAction @PlayRecording => m_Wrapper.m_TestRecording_PlayRecording;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_TestRecording; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="TestRecordingActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(TestRecordingActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="TestRecordingActions" />
+        public void AddCallbacks(ITestRecordingActions instance)
+        {
+            if (instance == null || m_Wrapper.m_TestRecordingActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_TestRecordingActionsCallbackInterfaces.Add(instance);
+            @PlayRecording.started += instance.OnPlayRecording;
+            @PlayRecording.performed += instance.OnPlayRecording;
+            @PlayRecording.canceled += instance.OnPlayRecording;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="TestRecordingActions" />
+        private void UnregisterCallbacks(ITestRecordingActions instance)
+        {
+            @PlayRecording.started -= instance.OnPlayRecording;
+            @PlayRecording.performed -= instance.OnPlayRecording;
+            @PlayRecording.canceled -= instance.OnPlayRecording;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="TestRecordingActions.UnregisterCallbacks(ITestRecordingActions)" />.
+        /// </summary>
+        /// <seealso cref="TestRecordingActions.UnregisterCallbacks(ITestRecordingActions)" />
+        public void RemoveCallbacks(ITestRecordingActions instance)
+        {
+            if (m_Wrapper.m_TestRecordingActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="TestRecordingActions.AddCallbacks(ITestRecordingActions)" />
+        /// <seealso cref="TestRecordingActions.RemoveCallbacks(ITestRecordingActions)" />
+        /// <seealso cref="TestRecordingActions.UnregisterCallbacks(ITestRecordingActions)" />
+        public void SetCallbacks(ITestRecordingActions instance)
+        {
+            foreach (var item in m_Wrapper.m_TestRecordingActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_TestRecordingActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="TestRecordingActions" /> instance referencing this action map.
+    /// </summary>
+    public TestRecordingActions @TestRecording => new TestRecordingActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Player" which allows adding and removing callbacks.
     /// </summary>
@@ -407,5 +535,20 @@ public partial class @InputControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMove(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "TestRecording" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="TestRecordingActions.AddCallbacks(ITestRecordingActions)" />
+    /// <seealso cref="TestRecordingActions.RemoveCallbacks(ITestRecordingActions)" />
+    public interface ITestRecordingActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "PlayRecording" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPlayRecording(InputAction.CallbackContext context);
     }
 }

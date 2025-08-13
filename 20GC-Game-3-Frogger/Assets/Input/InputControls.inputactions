@@ -128,6 +128,34 @@
                     "isPartOfComposite": true
                 }
             ]
+        },
+        {
+            "name": "TestRecording",
+            "id": "84983b6e-5595-446d-b41a-c1f1d241beaf",
+            "actions": [
+                {
+                    "name": "PlayRecording",
+                    "type": "Button",
+                    "id": "a967bb2a-1a00-487f-97e0-279e6d54dc59",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "cb333d46-82d6-4cac-b1e2-5588832915a4",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PlayRecording",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

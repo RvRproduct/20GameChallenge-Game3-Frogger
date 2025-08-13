@@ -1,15 +1,18 @@
 // Game and Code By RvRproduct (Roberto Valentino Reynoso)
 public class MoveCommand : Command
 {
-    public MoveCommand(Player _player, float _playerX, float _playerY) 
+    public MoveCommand(Player _player, float _playerX, float _playerY, float _timeStamp, bool _finished) 
     {
-        player = _player;
+        timeStamp = _timeStamp;
+        finished = _finished;
+        player = _player;        
         playerX = _playerX;
         playerY = _playerY;
     }
     public override void Execute()
     {
-        player.MovePlayer(playerX, playerY);
+        finished = true;
+        player.MovePlayer(playerX, playerY, this);
     }
 
     public override void Undo()

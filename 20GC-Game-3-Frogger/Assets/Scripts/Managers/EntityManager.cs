@@ -56,7 +56,7 @@ public class EntityManager : ObjectPool
 
     private void SpawnTimer()
     {
-        currentSpawnRate = Time.deltaTime;
+        currentSpawnRate += Time.deltaTime;
 
         if (currentSpawnRate >= maxSpawnRateTime)
         {
