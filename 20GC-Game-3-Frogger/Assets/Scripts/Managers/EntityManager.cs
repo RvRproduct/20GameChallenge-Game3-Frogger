@@ -4,14 +4,11 @@ using UnityEngine;
 
 public enum EntityTypes
 {
-    SlowCar,
-    FastCar,
-    SportsCar,
-    Tractor,
-    Truck,
-    Croc,
-    Turtle,
-    Log
+    Bat,
+    Skeleton,
+    SlimeB,
+    SlimeG,
+    SlimeR
 }
 
 public class EntityManager : ObjectPool
@@ -71,36 +68,24 @@ public class EntityManager : ObjectPool
         {
             switch (entityLocation.entityType)
             {
-                case EntityTypes.SlowCar:
-                    SpawnEntity(PoolTags.EntityTags.SlowCarEntity, 
+                case EntityTypes.Bat:
+                    SpawnEntity(PoolTags.EntityTags.BatEntity, 
                         entityLocation.entitySpawnPoint.position);
                     break;
-                case EntityTypes.FastCar:
-                    SpawnEntity(PoolTags.EntityTags.FastCarEntity,
+                case EntityTypes.Skeleton:
+                    SpawnEntity(PoolTags.EntityTags.SkeletonEntity,
                         entityLocation.entitySpawnPoint.position);
                     break;
-                case EntityTypes.SportsCar:
-                    SpawnEntity(PoolTags.EntityTags.SportsCarEntity,
+                case EntityTypes.SlimeB:
+                    SpawnEntity(PoolTags.EntityTags.SlimeBEntity,
                         entityLocation.entitySpawnPoint.position);
                     break;
-                case EntityTypes.Tractor:
-                    SpawnEntity(PoolTags.EntityTags.TractorEntity,
+                case EntityTypes.SlimeG:
+                    SpawnEntity(PoolTags.EntityTags.SlimeGEntity,
                         entityLocation.entitySpawnPoint.position);
                     break;
-                case EntityTypes.Truck:
-                    SpawnEntity(PoolTags.EntityTags.TruckEntity,
-                        entityLocation.entitySpawnPoint.position);
-                    break;
-                case EntityTypes.Croc:
-                    SpawnEntity(PoolTags.EntityTags.CrocEntity,
-                        entityLocation.entitySpawnPoint.position);
-                    break;
-                case EntityTypes.Turtle:
-                    SpawnEntity(PoolTags.EntityTags.TurtleEntity,
-                        entityLocation.entitySpawnPoint.position);
-                    break;
-                case EntityTypes.Log:
-                    SpawnEntity(PoolTags.EntityTags.LogEntity,
+                case EntityTypes.SlimeR:
+                    SpawnEntity(PoolTags.EntityTags.SlimeREntity,
                         entityLocation.entitySpawnPoint.position);
                     break;
             }

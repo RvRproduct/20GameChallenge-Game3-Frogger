@@ -20,13 +20,11 @@ public class InputHandler : MonoBehaviour
     {
         inputControls.Enable();
         inputControls.Player.Move.started += ApplyMovement;
-        inputControls.Player.Move.canceled += ApplyMovement;
     }
 
     private void OnDisable()
     {
         inputControls.Player.Move.started -= ApplyMovement;
-        inputControls.Player.Move.canceled -= ApplyMovement;
         inputControls.Disable();
     }
 

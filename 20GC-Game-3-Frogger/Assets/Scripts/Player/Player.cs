@@ -9,16 +9,19 @@ public class Player : MonoBehaviour
     [SerializeField] private float playerDuration = 0.05f;
     private Vector3 playerLocation;
     private Vector3 playerStartingLocation;
+    private Animator animator;
 
     private void Awake()
     {
         playerLocation = transform.position;
         playerStartingLocation = transform.position;
+        animator = GetComponent<Animator>();
     }
     public void MovePlayer(float _playerX, float _playerY, Command command)
     {
         if (playerMoving == null && gameObject.activeInHierarchy)
         {
+            SetTriggerWalk();
             playerMoving = StartCoroutine(PlayerMoving(new Vector3(_playerX, _playerY, 0.0f), command));
         }
     }
@@ -39,6 +42,7 @@ public class Player : MonoBehaviour
         }
 
         SetPlayerLocation(_newPlayerLocation);
+        SetTriggerIdle();
         if (ReplayManager.Instance.GetIsPlayingRecording())
         {
             ReplayManager.Instance.IncrementCurrentRecordedCommand();
@@ -77,5 +81,16 @@ public class Player : MonoBehaviour
     public Vector3 GetPlayerStartingLocation()
     {
         return playerStartingLocation;
+    }
+
+    // Animation
+    private void SetTriggerIdle()
+    {
+        animator.SetTrigger("Idle");
+    }
+
+    private void SetTriggerWalk()
+    {
+        animator.SetTrigger("Walk");
     }
 }

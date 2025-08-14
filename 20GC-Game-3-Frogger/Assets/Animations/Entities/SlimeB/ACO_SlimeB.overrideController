@@ -1,0 +1,13 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ACO_SlimeB
+  m_Controller: {fileID: 9100000, guid: 389ec4d73a0cf314a87de21d8b1aeca0, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: d2cd93cd5ad8f92448a5674d6b7630eb, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: f1598d022a935d247b32793e71d822ff, type: 2}

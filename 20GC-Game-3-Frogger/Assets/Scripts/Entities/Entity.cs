@@ -34,24 +34,18 @@ public class Entity : BasePoolObject
     {
         switch (entityType)
         {
-            case EntityTypes.SlowCar:
-                return PoolTags.EntityTags.SlowCarEntity;
-            case EntityTypes.FastCar:
-                return PoolTags.EntityTags.FastCarEntity;
-            case EntityTypes.SportsCar:
-                return PoolTags.EntityTags.SportsCarEntity;
-            case EntityTypes.Tractor:
-                return PoolTags.EntityTags.TractorEntity;
-            case EntityTypes.Truck:
-                return PoolTags.EntityTags.TruckEntity;
-            case EntityTypes.Croc:
-                return PoolTags.EntityTags.CrocEntity;
-            case EntityTypes.Turtle:
-                return PoolTags.EntityTags.TurtleEntity;
-            case EntityTypes.Log:
-                return PoolTags.EntityTags.LogEntity;
+            case EntityTypes.Bat:
+                return PoolTags.EntityTags.BatEntity;
+            case EntityTypes.Skeleton:
+                return PoolTags.EntityTags.SkeletonEntity;
+            case EntityTypes.SlimeB:
+                return PoolTags.EntityTags.SlimeBEntity;
+            case EntityTypes.SlimeG:
+                return PoolTags.EntityTags.SlimeGEntity;
+            case EntityTypes.SlimeR:
+                return PoolTags.EntityTags.SlimeREntity;
             default:
-                return PoolTags.EntityTags.SlowCarEntity;
+                return PoolTags.EntityTags.BatEntity;
 
         }
     }

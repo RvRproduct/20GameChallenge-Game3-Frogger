@@ -10,14 +10,11 @@ namespace PoolTags
 
     public struct EntityTags
     {
-        public const string SlowCarEntity = "SlowCarEntity";
-        public const string FastCarEntity = "FastCarEntity";
-        public const string SportsCarEntity = "SportsCarEntity";
-        public const string TractorEntity = "TractorEntity";
-        public const string TruckEntity = "TruckEntity";
-        public const string CrocEntity = "CrocEntity";
-        public const string TurtleEntity = "TurtleEntity";
-        public const string LogEntity = "LogEntity";
+        public const string BatEntity = "BatEntity";
+        public const string SkeletonEntity = "SkeletonEntity";
+        public const string SlimeBEntity = "SlimeBEntity";
+        public const string SlimeGEntity = "SlimeGEntity";
+        public const string SlimeREntity = "SlimeREntity";
     }
 
     public struct WaterReturnTags
