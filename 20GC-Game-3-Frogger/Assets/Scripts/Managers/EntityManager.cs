@@ -19,12 +19,12 @@ public class EntityManager : ObjectPool
     public class EntityLocationPlacement
     {
         public EntityTypes entityType;
-        public Transform entitySpawnPoint;
+        public List<Transform> entitySpawnPoint;
+        public float maxSpawnRateTime = 2.0f;
+        [HideInInspector] public float currentSpawnRateTime = 0.0f;
     }
 
     [SerializeField] private List<EntityLocationPlacement> entityLocationPlacements;
-    [SerializeField] private float maxSpawnRateTime = 2.0f;
-    private float currentSpawnRate = 0.0f;
 
     protected override void Awake()
     {
@@ -53,43 +53,80 @@ public class EntityManager : ObjectPool
 
     private void SpawnTimer()
     {
-        currentSpawnRate += Time.deltaTime;
-
-        if (currentSpawnRate >= maxSpawnRateTime)
-        {
-            SpawnEntitiesInWorld();
-            currentSpawnRate = 0;
-        }
+        SpawnEntitiesInWorld();
     }
 
     private void SpawnEntitiesInWorld()
     {
         foreach (EntityLocationPlacement entityLocation in entityLocationPlacements)
         {
+            entityLocation.currentSpawnRateTime += Time.deltaTime;
+
             switch (entityLocation.entityType)
             {
                 case EntityTypes.Bat:
-                    SpawnEntity(PoolTags.EntityTags.BatEntity, 
-                        entityLocation.entitySpawnPoint.position);
+                    if (CanSpawnEntity(entityLocation))
+                    {
+                        foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
+                        {
+                            SpawnEntity(PoolTags.EntityTags.BatEntity,
+                                spawnPoint.position);
+                        }
+                    }
                     break;
                 case EntityTypes.Skeleton:
-                    SpawnEntity(PoolTags.EntityTags.SkeletonEntity,
-                        entityLocation.entitySpawnPoint.position);
+                    if (CanSpawnEntity(entityLocation))
+                    {
+                        foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
+                        {
+                            SpawnEntity(PoolTags.EntityTags.SkeletonEntity,
+                                spawnPoint.position);
+                        }
+                    }
                     break;
                 case EntityTypes.SlimeB:
-                    SpawnEntity(PoolTags.EntityTags.SlimeBEntity,
-                        entityLocation.entitySpawnPoint.position);
+                    if (CanSpawnEntity(entityLocation))
+                    {
+                        foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
+                        {
+                            SpawnEntity(PoolTags.EntityTags.SlimeBEntity,
+                                spawnPoint.position);
+                        }
+                    }
                     break;
                 case EntityTypes.SlimeG:
-                    SpawnEntity(PoolTags.EntityTags.SlimeGEntity,
-                        entityLocation.entitySpawnPoint.position);
+                    if (CanSpawnEntity(entityLocation))
+                    {
+                        foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
+                        {
+                            SpawnEntity(PoolTags.EntityTags.SlimeGEntity,
+                                spawnPoint.position);
+                        }
+                    }
                     break;
                 case EntityTypes.SlimeR:
-                    SpawnEntity(PoolTags.EntityTags.SlimeREntity,
-                        entityLocation.entitySpawnPoint.position);
+                    if (CanSpawnEntity(entityLocation))
+                    {
+                        foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
+                        {
+                            SpawnEntity(PoolTags.EntityTags.SlimeREntity,
+                                spawnPoint.position);
+                        }
+                    }
                     break;
             }
         }
+    }
+
+    private bool CanSpawnEntity(EntityLocationPlacement entityLocation)
+    {
+        if (entityLocation.currentSpawnRateTime >= entityLocation.maxSpawnRateTime)
+        {
+            entityLocation.currentSpawnRateTime = 0;
+            return true;
+        }
+
+        return false;
     }
 
     private void SpawnEntity(string entityTag, Vector3 spawnPoint)

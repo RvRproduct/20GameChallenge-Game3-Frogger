@@ -195,7 +195,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4
+  m_SortingOrder: 11
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 1.03125, y: 4, z: 0}
   m_MaxChunkCount: 16
@@ -4234,21 +4234,41 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 434782153}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[0].maxSpawnRateTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[1].entitySpawnPoint
       value: 
       objectReference: {fileID: 155033999}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[1].maxSpawnRateTime
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[2].entitySpawnPoint
       value: 
       objectReference: {fileID: 301742401}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[2].maxSpawnRateTime
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[3].entitySpawnPoint
       value: 
       objectReference: {fileID: 181092045}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[3].maxSpawnRateTime
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[4].entitySpawnPoint
       value: 
       objectReference: {fileID: 319773383}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[4].maxSpawnRateTime
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[5].entitySpawnPoint
       value: 
@@ -4261,6 +4281,46 @@ PrefabInstance:
       propertyPath: entityLocationPlacements.Array.data[7].entitySpawnPoint
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[0].entitySpawnPoint.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[1].entitySpawnPoint.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[2].entitySpawnPoint.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[3].entitySpawnPoint.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[4].entitySpawnPoint.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: 'entityLocationPlacements.Array.data[0].entitySpawnPoint.Array.data[0]'
+      value: 
+      objectReference: {fileID: 434782153}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: 'entityLocationPlacements.Array.data[1].entitySpawnPoint.Array.data[0]'
+      value: 
+      objectReference: {fileID: 155033999}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: 'entityLocationPlacements.Array.data[2].entitySpawnPoint.Array.data[0]'
+      value: 
+      objectReference: {fileID: 301742401}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: 'entityLocationPlacements.Array.data[3].entitySpawnPoint.Array.data[0]'
+      value: 
+      objectReference: {fileID: 181092045}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: 'entityLocationPlacements.Array.data[4].entitySpawnPoint.Array.data[0]'
+      value: 
+      objectReference: {fileID: 319773383}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4707,6 +4767,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: -4442082563870626902, guid: 32cce96af45b1fd46a18ae646cbb958d, type: 3}
+    - target: {fileID: 6404624945215391977, guid: 0ecb768221caa754a98fde4c99565d54, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 8518928361702295635, guid: 0ecb768221caa754a98fde4c99565d54, type: 3}
       propertyPath: playerDuration
       value: 0.12
