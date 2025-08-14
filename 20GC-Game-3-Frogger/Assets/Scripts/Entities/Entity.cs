@@ -7,6 +7,26 @@ public class Entity : BasePoolObject
     [SerializeField] private bool isGoingLeft = false;
     [SerializeField] private float speed = 8.0f;
     [SerializeField] private EntityTypes entityType;
+    private SpriteRenderer spriteRenderer;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer)
+        {
+            if (isGoingLeft)
+            {
+                spriteRenderer.flipX = true;
+            }
+            else
+            {
+                spriteRenderer.flipX = false;
+            }
+
+        }
+    }
 
     protected override string ProvidePoolReturnTag()
     {

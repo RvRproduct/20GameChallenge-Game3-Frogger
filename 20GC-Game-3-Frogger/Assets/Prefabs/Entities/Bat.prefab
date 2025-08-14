@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3556659954569563904}
   - component: {fileID: 1898639970087849369}
   - component: {fileID: 1079342531221294233}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Bat
   m_TagString: KillingEntity
   m_Icon: {fileID: 0}

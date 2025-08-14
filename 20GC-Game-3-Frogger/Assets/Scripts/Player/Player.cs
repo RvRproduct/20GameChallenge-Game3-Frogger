@@ -1,4 +1,5 @@
 // Game and Code By RvRproduct (Roberto Valentino Reynoso)
+using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,6 +11,8 @@ public class Player : MonoBehaviour
     private Vector3 playerLocation;
     private Vector3 playerStartingLocation;
     private Animator animator;
+    [SerializeField] private float rayDistance = 5;
+    [SerializeField] LayerMask blockLayer;
 
     private void Awake()
     {
@@ -17,18 +20,42 @@ public class Player : MonoBehaviour
         playerStartingLocation = transform.position;
         animator = GetComponent<Animator>();
     }
-    public void MovePlayer(float _playerX, float _playerY, Command command)
+    public void MovePlayer(float _playerX, float _playerY, float directionX, float directionY, Command command)
     {
         if (playerMoving == null && gameObject.activeInHierarchy)
         {
             SetTriggerWalk();
-            playerMoving = StartCoroutine(PlayerMoving(new Vector3(_playerX, _playerY, 0.0f), command));
+            playerMoving = StartCoroutine(PlayerMoving(new Vector3(_playerX, _playerY, 0.0f),
+                new Vector2(directionX, directionY),command));
         }
     }
 
-    private IEnumerator PlayerMoving(Vector3 _newPlayerLocation, Command command)
+    private IEnumerator PlayerMoving(Vector3 _newPlayerLocation, 
+        Vector2 playerDirection, Command command)
     {
         float elapsedTime = 0.0f;
+        Vector3 previousPosition = transform.position;
+        bool hitWallReaction = false;
+
+        while (elapsedTime < playerDuration)
+        {
+            if (!HitWall(transform.position, playerDirection))
+            {
+                elapsedTime += Time.deltaTime;
+                float time = elapsedTime / playerDuration;
+                transform.position = Vector3.Lerp(
+                    transform.position,
+                    _newPlayerLocation,
+                    time);
+                yield return null;
+            }
+            else
+            {
+                hitWallReaction = true;
+                elapsedTime = 0.0f;
+                break;
+            }     
+        }
 
         while (elapsedTime < playerDuration)
         {
@@ -36,12 +63,21 @@ public class Player : MonoBehaviour
             float time = elapsedTime / playerDuration;
             transform.position = Vector3.Lerp(
                 transform.position,
-                _newPlayerLocation,
+                previousPosition,
                 time);
             yield return null;
         }
 
-        SetPlayerLocation(_newPlayerLocation);
+        if (hitWallReaction)
+        {
+            hitWallReaction = false;
+            SetPlayerLocation(previousPosition);
+        }
+        else
+        {
+            SetPlayerLocation(_newPlayerLocation);
+        }
+   
         SetTriggerIdle();
         if (ReplayManager.Instance.GetIsPlayingRecording())
         {
@@ -63,6 +99,35 @@ public class Player : MonoBehaviour
     public void OnDeath()
     {
 
+    }
+
+    private bool HitWall(Vector2 origin ,Vector2 direction)
+    {
+
+        Debug.DrawRay(origin, direction * rayDistance, Color.red);
+        List<Vector2> origins = new List<Vector2>();
+        if (direction.x == 0)
+        {
+            origins.Add(origin);
+            origins.Add(new Vector2(origin.x + 0.25f, origin.y));
+            origins.Add(new Vector2(origin.x - 0.25f, origin.y));
+        }
+        else
+        {
+            origins.Add(origin);
+            origins.Add(new Vector2(origin.x, origin.y + 0.25f));
+            origins.Add(new Vector2(origin.x, origin.y - 0.25f));
+        }
+
+        foreach (Vector2 _origin in origins)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(_origin, direction, rayDistance, blockLayer);
+            if (hit.collider != null)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Getters and Setters

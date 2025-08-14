@@ -38,12 +38,14 @@ public class InputHandler : MonoBehaviour
         _move.Execute();
     }
 
-    protected Command HandleInput(float newPlayerX, float newPlayerY)
+    protected Command HandleInput(float newPlayerX, float newPlayerY, float directionX, float directionY)
     {
         move = null;
         return move = new MoveCommand(player,
             newPlayerX,
             newPlayerY,
+            directionX,
+            directionY,
             GameManager.Instance.GetGameTimer(),
             true);
     }
@@ -56,7 +58,8 @@ public class InputHandler : MonoBehaviour
             Vector2 newPlayerLocation = new Vector2(
                 transform.position.x + (playerMovement.x * playerMoveDistance),
                 transform.position.y + (playerMovement.y * playerMoveDistance));
-            Command currentCommand = HandleInput(newPlayerLocation.x, newPlayerLocation.y);
+            Command currentCommand = HandleInput(newPlayerLocation.x, newPlayerLocation.y,
+                playerMovement.x, playerMovement.y);
             ReplayManager.Instance.AddRecordedCommand(currentCommand);
             HandleCommand(currentCommand);
         }     
