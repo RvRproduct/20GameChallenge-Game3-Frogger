@@ -5,7 +5,8 @@ namespace PoolTags
 
     public struct EntityReturnTags
     {
-        public const string EntityReturn = "EntityPoolReturn";
+        public const string EntityLeftReturn = "EntityLeftPoolReturn";
+        public const string EntityRightReturn = "EntityRightPoolReturn";
     }
 
     public struct EntityTags

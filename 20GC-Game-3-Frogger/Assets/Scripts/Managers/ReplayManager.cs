@@ -11,6 +11,7 @@ public class ReplayManager : MonoBehaviour
     private List<Command> recordedCommands = new List<Command>();
     private float playBackTimer = 0.0f;
     private bool isRecordingPlaying = false;
+    private bool isRewinding = false;
     private InputControls inputControls;
 
     private void Awake()
@@ -58,7 +59,6 @@ public class ReplayManager : MonoBehaviour
                 {
                     recordedCommands[currentRecordedCommand].Execute();
                 }
-                
             }
 
             yield return null;
@@ -68,6 +68,11 @@ public class ReplayManager : MonoBehaviour
     public bool GetIsPlayingRecording()
     {
         return isRecordingPlaying;
+    }
+
+    public bool GetIsRewinding()
+    {
+        return isRewinding;
     }
 
     public void AddRecordedCommand(Command _command)

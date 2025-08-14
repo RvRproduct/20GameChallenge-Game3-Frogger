@@ -134,4 +134,18 @@ public class EntityManager : ObjectPool
         GameObject validObject = GetValidObjectInPool(entityTag);
         validObject.transform.position = spawnPoint;
     }
+
+    public void SetPoolTagForReplay()
+    {
+        foreach (string poolObjectKey in objectPool.Keys)
+        {
+            foreach (GameObject poolObject in objectPool[poolObjectKey])
+            {
+                // Only During the Replay Functionality are we Calling this,
+                // so it's not horrible I suppose, but not the best. The thing here
+                // is it proves the concept.
+                poolObject.GetComponent<BasePoolObject>().SetPoolReturnTagForReplay();
+            }
+        }
+    }
 }

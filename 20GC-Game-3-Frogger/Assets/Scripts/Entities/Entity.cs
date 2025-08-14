@@ -30,7 +30,29 @@ public class Entity : BasePoolObject
 
     protected override string ProvidePoolReturnTag()
     {
-        return PoolTags.EntityReturnTags.EntityReturn;
+        if (isGoingLeft)
+        {
+            if (!ReplayManager.Instance.GetIsRewinding())
+            {
+                return PoolTags.EntityReturnTags.EntityLeftReturn;
+            }
+            else
+            {
+                return PoolTags.EntityReturnTags.EntityRightReturn;  
+            }
+            
+        }
+        else
+        {
+            if (!ReplayManager.Instance.GetIsRewinding())
+            {
+                return PoolTags.EntityReturnTags.EntityRightReturn;
+            }
+            else
+            {
+                return PoolTags.EntityReturnTags.EntityLeftReturn; 
+            }     
+        }      
     }
 
     protected override string ProvidePoolTag()

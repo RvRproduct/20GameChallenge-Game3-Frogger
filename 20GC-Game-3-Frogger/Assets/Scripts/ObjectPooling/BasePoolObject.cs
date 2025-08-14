@@ -26,21 +26,19 @@ public abstract class BasePoolObject : MonoBehaviour
         SetPoolReturnTag(ProvidePoolReturnTag());
     }
 
-    private void SetPoolTag(string _poolTag)
+    public void SetPoolTag(string _poolTag)
     {
-        if (poolTag == null)
-        {
-            poolTag = ProvidePoolTag();
-        }
-        else
-        {
-            throw new System.NotImplementedException("Pool tag not added to the pooling object");
-        }
+        poolTag = ProvidePoolTag();
     }
 
-    private void SetPoolReturnTag(string _poolReturnTag)
+    public void SetPoolReturnTag(string _poolReturnTag)
     {
         poolReturnTag = _poolReturnTag;
+    }
+
+    public void SetPoolReturnTagForReplay()
+    {
+        poolReturnTag = ProvidePoolReturnTag();
     }
 
     protected void BasePoolObjectTrigger(Collider2D collision)
