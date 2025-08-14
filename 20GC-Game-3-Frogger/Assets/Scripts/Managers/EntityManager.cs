@@ -67,51 +67,31 @@ public class EntityManager : ObjectPool
                 case EntityTypes.Bat:
                     if (CanSpawnEntity(entityLocation))
                     {
-                        foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
-                        {
-                            SpawnEntity(PoolTags.EntityTags.BatEntity,
-                                spawnPoint.position);
-                        }
+                        CheckReplaySpawnPoint(PoolTags.EntityTags.BatEntity, entityLocation);
                     }
                     break;
                 case EntityTypes.Skeleton:
                     if (CanSpawnEntity(entityLocation))
                     {
-                        foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
-                        {
-                            SpawnEntity(PoolTags.EntityTags.SkeletonEntity,
-                                spawnPoint.position);
-                        }
+                        CheckReplaySpawnPoint(PoolTags.EntityTags.SkeletonEntity, entityLocation);
                     }
                     break;
                 case EntityTypes.SlimeB:
                     if (CanSpawnEntity(entityLocation))
                     {
-                        foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
-                        {
-                            SpawnEntity(PoolTags.EntityTags.SlimeBEntity,
-                                spawnPoint.position);
-                        }
+                        CheckReplaySpawnPoint(PoolTags.EntityTags.SlimeBEntity, entityLocation);
                     }
                     break;
                 case EntityTypes.SlimeG:
                     if (CanSpawnEntity(entityLocation))
                     {
-                        foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
-                        {
-                            SpawnEntity(PoolTags.EntityTags.SlimeGEntity,
-                                spawnPoint.position);
-                        }
+                        CheckReplaySpawnPoint(PoolTags.EntityTags.SlimeGEntity, entityLocation);
                     }
                     break;
                 case EntityTypes.SlimeR:
                     if (CanSpawnEntity(entityLocation))
                     {
-                        foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
-                        {
-                            SpawnEntity(PoolTags.EntityTags.SlimeREntity,
-                                spawnPoint.position);
-                        }
+                        CheckReplaySpawnPoint(PoolTags.EntityTags.SlimeREntity, entityLocation);
                     }
                     break;
             }
@@ -133,6 +113,29 @@ public class EntityManager : ObjectPool
     {
         GameObject validObject = GetValidObjectInPool(entityTag);
         validObject.transform.position = spawnPoint;
+    }
+
+    private void CheckReplaySpawnPoint(string entityTag, EntityLocationPlacement entityLocation)
+    {
+        float reflectSpawnPointXAxis = -1.0f;
+        if (!ReplayManager.Instance.GetIsRewinding())
+        {
+            foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
+            {
+                SpawnEntity(entityTag, spawnPoint.position);
+            }
+        }
+        else
+        {
+            foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
+            {
+                Vector3 reflectedSpawnPoint = new Vector3(
+                    spawnPoint.position.x * reflectSpawnPointXAxis,
+                    spawnPoint.position.y, 
+                    spawnPoint.position.z);
+                SpawnEntity(entityTag, reflectedSpawnPoint);
+            }
+        }
     }
 
     public void SetPoolTagForReplay()

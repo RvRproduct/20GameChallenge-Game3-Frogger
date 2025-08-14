@@ -36,11 +36,11 @@ public class Player : MonoBehaviour
     {
         float elapsedTime = 0.0f;
         Vector3 previousPosition = transform.position;
-        bool hitWallReaction = false;
+        bool hitBlockReaction = false;
 
         while (elapsedTime < playerDuration)
         {
-            if (!HitWall(transform.position, playerDirection))
+            if (!HitBlock(transform.position, playerDirection))
             {
                 elapsedTime += Time.deltaTime;
                 float time = elapsedTime / playerDuration;
@@ -52,7 +52,7 @@ public class Player : MonoBehaviour
             }
             else
             {
-                hitWallReaction = true;
+                hitBlockReaction = true;
                 elapsedTime = 0.0f;
                 break;
             }     
@@ -69,9 +69,9 @@ public class Player : MonoBehaviour
             yield return null;
         }
 
-        if (hitWallReaction)
+        if (hitBlockReaction)
         {
-            hitWallReaction = false;
+            hitBlockReaction = false;
             SetPlayerLocation(previousPosition);
         }
         else
@@ -80,7 +80,7 @@ public class Player : MonoBehaviour
         }
    
         SetTriggerIdle();
-        if (ReplayManager.Instance.GetIsPlayingRecording())
+        if (ReplayManager.Instance.GetIsReplayPlaying())
         {
             ReplayManager.Instance.IncrementCurrentRecordedCommand();
         }
@@ -103,7 +103,7 @@ public class Player : MonoBehaviour
 
     }
 
-    private bool HitWall(Vector2 origin ,Vector2 direction)
+    private bool HitBlock(Vector2 origin ,Vector2 direction)
     {
 
         Debug.DrawRay(origin, direction * rayDistance, Color.red);
@@ -126,6 +126,11 @@ public class Player : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(_origin, direction, rayDistance, blockLayer);
             if (hit.collider != null)
             {
+                if (hit.collider.gameObject.tag == "Treasure")
+                {
+                    GameManager.Instance.GetTreasure().TriggerOpen();
+                }
+
                 return true;
             }
         }

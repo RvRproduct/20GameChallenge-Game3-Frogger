@@ -10,9 +10,8 @@ public class ReplayManager : MonoBehaviour
     private int currentRecordedCommand = 0;
     private List<Command> recordedCommands = new List<Command>();
     private float playBackTimer = 0.0f;
-    private bool isRecordingPlaying = false;
+    private bool isReplayPlaying = false;
     private bool isRewinding = false;
-    private InputControls inputControls;
 
     private void Awake()
     {
@@ -24,33 +23,17 @@ public class ReplayManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        inputControls = new InputControls();
     }
 
-    private void OnEnable()
+    public void StartReplay()
     {
-        inputControls.Enable();
-        inputControls.TestRecording.PlayRecording.started += StartRecording;
-    } 
-
-    private void OnDisable()
-    {
-        inputControls.Disable();
-        inputControls.TestRecording.PlayRecording.started -= StartRecording;
-    }
-
-    private void StartRecording(InputAction.CallbackContext context)
-    {
-        GameManager.Instance.SetPlayerToStartingLocation();
-        isRecordingPlaying = true;
+        isReplayPlaying = true;
         StartCoroutine(PlayRecordedCommands());
     }
 
     public IEnumerator PlayRecordedCommands()
     {
-        currentRecordedCommand = 0;
-        while (isRecordingPlaying && currentRecordedCommand < recordedCommands.Count)
+        while (isReplayPlaying && currentRecordedCommand < recordedCommands.Count)
         {
             playBackTimer += Time.deltaTime;
             if (playBackTimer >= recordedCommands[currentRecordedCommand].timeStamp)
@@ -65,9 +48,14 @@ public class ReplayManager : MonoBehaviour
         }
     }
 
-    public bool GetIsPlayingRecording()
+    public bool GetIsReplayPlaying()
     {
-        return isRecordingPlaying;
+        return isReplayPlaying;
+    }
+
+    public void SetIsReplayPlaying(bool _isReplayPlaying)
+    {
+        isReplayPlaying = _isReplayPlaying;
     }
 
     public bool GetIsRewinding()
@@ -78,6 +66,12 @@ public class ReplayManager : MonoBehaviour
     public void AddRecordedCommand(Command _command)
     {
         recordedCommands.Add(_command);
+    }
+
+    public void RestartReplay()
+    {
+        GameManager.Instance.SetPlayerToStartingLocation();
+        currentRecordedCommand = 0;
     }
 
     public void IncrementCurrentRecordedCommand()

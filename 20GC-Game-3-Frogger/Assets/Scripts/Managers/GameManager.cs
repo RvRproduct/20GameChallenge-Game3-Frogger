@@ -4,6 +4,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     [SerializeField] private Player player;
+    [SerializeField] private Treasure treasure;
 
     private float gameTimer = 0;
 
@@ -32,5 +33,10 @@ public class GameManager : MonoBehaviour
     public void SetPlayerToStartingLocation()
     {
         player.transform.position = player.GetPlayerStartingLocation();
+    }
+
+    public Treasure GetTreasure()
+    {
+        return treasure;
     }
 }
