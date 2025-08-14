@@ -44,3 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f32c98fec61658940bfca1db1ce14141, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playButton: {fileID: 21300000, guid: 6523bf926843dbb4e979cedb7370c43e, type: 3}
+  pauseButton: {fileID: 21300000, guid: 5fc710f713ac1be468e5c8ef2b11239c, type: 3}
+  rewindButton: {fileID: 21300000, guid: 6a736cfd9250d5c4a9ff3e0e4ad0cb5c, type: 3}
+  doubleRewindButton: {fileID: 21300000, guid: c7a6fe9f3f07bf74a897236d55e0cee6, type: 3}
+  playImage: {fileID: 0}
+  rewindImage: {fileID: 0}
