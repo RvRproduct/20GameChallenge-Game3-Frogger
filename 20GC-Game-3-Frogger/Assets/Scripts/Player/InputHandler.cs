@@ -52,16 +52,20 @@ public class InputHandler : MonoBehaviour
 
     private void ApplyMovement(InputAction.CallbackContext context)
     {
-        if (inputControls != null && gameObject != null)
+        if (!player.GetInMiddleOfMoveCommand())
         {
-            Vector2 playerMovement = context.ReadValue<Vector2>();
-            Vector2 newPlayerLocation = new Vector2(
-                transform.position.x + (playerMovement.x * playerMoveDistance),
-                transform.position.y + (playerMovement.y * playerMoveDistance));
-            Command currentCommand = HandleInput(newPlayerLocation.x, newPlayerLocation.y,
-                playerMovement.x, playerMovement.y);
-            ReplayManager.Instance.AddRecordedCommand(currentCommand);
-            HandleCommand(currentCommand);
-        }     
+            player.SetInMiddleOfMoveCommand(true);
+            if (inputControls != null && gameObject != null)
+            {
+                Vector2 playerMovement = context.ReadValue<Vector2>();
+                Vector2 newPlayerLocation = new Vector2(
+                    transform.position.x + (playerMovement.x * playerMoveDistance),
+                    transform.position.y + (playerMovement.y * playerMoveDistance));
+                Command currentCommand = HandleInput(newPlayerLocation.x, newPlayerLocation.y,
+                    playerMovement.x, playerMovement.y);
+                ReplayManager.Instance.AddRecordedCommand(currentCommand);
+                HandleCommand(currentCommand);
+            }
+        } 
     }
 }

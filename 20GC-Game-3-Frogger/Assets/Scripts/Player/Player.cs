@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using UnityEditor.Build;
 
 public class Player : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class Player : MonoBehaviour
     private Animator animator;
     [SerializeField] private float rayDistance = 5;
     [SerializeField] LayerMask blockLayer;
+    private bool inMiddleOfMoveCommand = false;
 
     private void Awake()
     {
@@ -83,6 +85,7 @@ public class Player : MonoBehaviour
             ReplayManager.Instance.IncrementCurrentRecordedCommand();
         }
         command.finished = false;
+        inMiddleOfMoveCommand = false;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -145,6 +148,16 @@ public class Player : MonoBehaviour
     public Vector3 GetPlayerStartingLocation()
     {
         return playerStartingLocation;
+    }
+
+    public void SetInMiddleOfMoveCommand(bool _inMiddleOfMoveCommand)
+    {
+        inMiddleOfMoveCommand = _inMiddleOfMoveCommand;
+    }
+
+    public bool GetInMiddleOfMoveCommand()
+    {
+        return inMiddleOfMoveCommand;
     }
 
     // Animation
