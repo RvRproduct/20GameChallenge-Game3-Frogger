@@ -1,6 +1,7 @@
 // Game and Code By RvRproduct (Roberto Valentino Reynoso)
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -26,6 +27,13 @@ public class UIManager : MonoBehaviour
     [Header("Count Down Timer")]
     [SerializeField] private TextMeshProUGUI countDownText;
 
+    [Header("Replay Mode Prompt")]
+    [SerializeField] GameObject replayModePrompt;
+
+    [Header("ReplayMode")]
+    [SerializeField] GameObject replayMode;
+    [SerializeField] GameObject LeaveReplayMode;
+
 
     private Color selectedColor = new Color(1.0f, 1.0f, 0.0f);
     private Color unSelectedColor = Color.black;
@@ -35,6 +43,7 @@ public class UIManager : MonoBehaviour
     private bool isForward = false;
     private bool isRewind = false;
     private bool isPause = false;
+    private bool isFirstTime = true;
 
     private void Awake()
     {
@@ -63,7 +72,7 @@ public class UIManager : MonoBehaviour
             pauseButton.colors = unSelectedColorBlock;
             isPause = false;
             if (!ReplayManager.Instance.GetIsReplayPlaying())
-            {    
+            {
                 ReplayManager.Instance.SetIsReplayPlaying(true);
                 if (isForward || isRewind)
                 {
@@ -71,7 +80,7 @@ public class UIManager : MonoBehaviour
                 }
             }
         }
-        
+
         else
         {
             pauseButton.colors = selectedColorBlock;
@@ -83,6 +92,9 @@ public class UIManager : MonoBehaviour
     public void RestartReplay()
     {
         ReplayManager.Instance.RestartReplay();
+        EntityManager.Instance.ResetAllEntities();
+        GameManager.Instance.SetPlayerStartingLocation(
+            GameManager.Instance.GetPlayer().transform.position);
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
             ReplayManager.Instance.StartReplay();
@@ -102,6 +114,7 @@ public class UIManager : MonoBehaviour
 
             if (!ReplayManager.Instance.GetIsRewinding())
             {
+                EntityManager.Instance.SetPoolTagForReplay();
                 ReplayManager.Instance.SetIsRewinding(true);
             }
 
@@ -109,7 +122,7 @@ public class UIManager : MonoBehaviour
             {
                 ReplayManager.Instance.StartReplay();
             }
-            
+
         }
         else
         {
@@ -121,7 +134,6 @@ public class UIManager : MonoBehaviour
 
     public void ForwardReplay()
     {
-
         if (!isForward)
         {
             // For visual Clarity
@@ -132,14 +144,21 @@ public class UIManager : MonoBehaviour
 
             if (ReplayManager.Instance.GetIsRewinding())
             {
+                EntityManager.Instance.SetPoolTagForReplay();
                 ReplayManager.Instance.SetIsRewinding(false);
+            }
+
+            if (isFirstTime)
+            {
+                ReplayManager.Instance.SetIsReplayPlaying(true);
+                isFirstTime = false;
             }
 
             if (ReplayManager.Instance.GetIsReplayPlaying())
             {
                 ReplayManager.Instance.StartReplay();
             }
-            
+
         }
         else
         {
@@ -165,11 +184,30 @@ public class UIManager : MonoBehaviour
         }
     }
 
-   public void UpdateCountDownTimer(int currentCountDown)
+    public void UpdateCountDownTimer(int currentCountDown)
     {
         int mins = currentCountDown / 60;
         int seconds = currentCountDown % 60;
 
         countDownText.text = $"{mins:0}:{seconds:00}";
+    }
+
+    // Replay Mode and Buttons
+    public void PromptForReplay()
+    {
+        replayModePrompt.SetActive(true);
+    }
+
+    public void EnterReplayMode()
+    {
+        replayModePrompt.SetActive(false);
+        ReplayManager.Instance.SetIsReplayPlaying(false);
+        EntityManager.Instance.ResetAllEntities();
+        replayMode.SetActive(true);
+    }
+
+    public void IgnoreReplayMode()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

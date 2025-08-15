@@ -30,6 +30,11 @@ public class Treasure : MonoBehaviour
         }
     }
 
+    public void AfterOpen()
+    {
+        UIManager.Instance.PromptForReplay();
+    }
+
     public void SetTimeWhenHit(float _timeWhenHit)
     {
         timeWhenHit = _timeWhenHit;

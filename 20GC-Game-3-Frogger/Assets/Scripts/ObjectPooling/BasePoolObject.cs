@@ -1,8 +1,4 @@
 // Game and Code By RvRproduct (Roberto Reynoso)
-
-using PoolTags;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class BasePoolObject : MonoBehaviour
@@ -38,7 +34,16 @@ public abstract class BasePoolObject : MonoBehaviour
 
     public void SetPoolReturnTagForReplay()
     {
-        poolReturnTag = ProvidePoolReturnTag();
+        // For this game only if anything more was added to this game
+        // This would need to be corrected
+        if (poolReturnTag == PoolTags.EntityReturnTags.EntityRightReturn)
+        {
+            poolReturnTag = PoolTags.EntityReturnTags.EntityLeftReturn;
+        }
+        else
+        {
+            poolReturnTag = PoolTags.EntityReturnTags.EntityRightReturn;
+        }
     }
 
     protected void BasePoolObjectTrigger(Collider2D collision)

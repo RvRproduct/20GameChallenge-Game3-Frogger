@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System.Xml.Serialization;
 
 public enum EntityTypes
 {
@@ -54,7 +55,10 @@ public class EntityManager : ObjectPool
 
     private void SpawnTimer()
     {
-        SpawnEntitiesInWorld();
+        if (ReplayManager.Instance.GetIsReplayPlaying())
+        {
+            SpawnEntitiesInWorld();
+        }
     }
 
     private void SpawnEntitiesInWorld()
@@ -138,6 +142,18 @@ public class EntityManager : ObjectPool
             }
         }
     }
+
+    public void ResetAllEntities()
+    {
+        foreach (string poolObjectKey in objectPool.Keys)
+        {
+            foreach (GameObject poolObject in objectPool[poolObjectKey])
+            {
+                poolObject.SetActive(false);
+            }
+        }
+    }
+
 
     public void SetPoolTagForReplay()
     {

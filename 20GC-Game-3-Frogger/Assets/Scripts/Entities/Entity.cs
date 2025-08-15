@@ -63,13 +63,36 @@ public class Entity : BasePoolObject
 
     private void Update()
     {
-        if (isGoingLeft)
+        CheckForReplayBeforeMove();
+    }
+
+    private void CheckForReplayBeforeMove()
+    {
+        if (ReplayManager.Instance.GetIsReplayPlaying())
         {
-            transform.position += Vector3.left * speed * Time.deltaTime;
-        }
-        else
-        {
-            transform.position += Vector3.right * speed * Time.deltaTime;
+            if (isGoingLeft)
+            {
+                if (!ReplayManager.Instance.GetIsRewinding())
+                {
+                    transform.position += Vector3.left * speed * Time.deltaTime;
+                }
+                else
+                {
+                    transform.position += Vector3.right * speed * Time.deltaTime;
+                }
+
+            }
+            else
+            {
+                if (!ReplayManager.Instance.GetIsRewinding())
+                {
+                    transform.position += Vector3.right * speed * Time.deltaTime;
+                }
+                else
+                {
+                    transform.position += Vector3.left * speed * Time.deltaTime;
+                }
+            }
         }
     }
 
