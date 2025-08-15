@@ -28,7 +28,7 @@ public class ReplayManager : MonoBehaviour
     public void StartReplay()
     {
         isReplayPlaying = true;
-        //StopAllCoroutines();
+        StopAllCoroutines();
         StartCoroutine(PlayRecordedCommands());
     }
 
@@ -48,8 +48,6 @@ public class ReplayManager : MonoBehaviour
         {
             playBackTimer = recordedCommands[currentRecordedCommand].timeStamp;
         }
-
-        Debug.Log($"Current Recorded Length {recordedCommands.Count}");
         
         // Normal
         while (isReplayPlaying && 
@@ -61,7 +59,6 @@ public class ReplayManager : MonoBehaviour
             {
                 if (!recordedCommands[currentRecordedCommand].finished)
                 {
-                    Debug.Log($"current Recorded Command {currentRecordedCommand}");
                     recordedCommands[currentRecordedCommand].Execute();
                 }
             }
@@ -79,7 +76,6 @@ public class ReplayManager : MonoBehaviour
             {
                 if (!recordedCommands[currentRecordedCommand].finished)
                 {
-                    Debug.Log($"current Recorded Command {currentRecordedCommand}");
                     recordedCommands[currentRecordedCommand].Execute();
                 }
             }
@@ -116,8 +112,20 @@ public class ReplayManager : MonoBehaviour
 
     public void RestartReplay()
     {
-        GameManager.Instance.SetPlayerToStartingLocation();
-        currentRecordedCommand = 0;
+        if (!isRewinding)
+        {
+            GameManager.Instance.SetPlayerStartingLocation(
+            GameManager.Instance.GetPlayer().transform.position);
+            currentRecordedCommand = 0;
+        }
+        else
+        {
+            GameManager.Instance.SetPlayerStartingLocation(
+                new Vector3(((MoveCommand)recordedCommands[recordedCommands.Count - 1]).GetPlayerX(),
+                ((MoveCommand)recordedCommands[recordedCommands.Count - 1]).GetPlayerY(),
+                GameManager.Instance.GetPlayer().transform.position.z));
+            currentRecordedCommand = recordedCommands.Count - 1;
+        }
     }
 
     public void IncrementCurrentRecordedCommand()

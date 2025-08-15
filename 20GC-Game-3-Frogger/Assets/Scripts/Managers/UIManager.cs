@@ -59,14 +59,10 @@ public class UIManager : MonoBehaviour
             pauseButton.colors = unSelectedColorBlock;
             isPause = false;
             if (!ReplayManager.Instance.GetIsReplayPlaying())
-            {
-                Debug.Log("Play");
-
-                
+            {    
                 ReplayManager.Instance.SetIsReplayPlaying(true);
                 if (isForward || isRewind)
                 {
-                    Debug.Log("Trying to play");
                     ReplayManager.Instance.StartReplay();
                 }
             }
@@ -107,7 +103,6 @@ public class UIManager : MonoBehaviour
 
             if (ReplayManager.Instance.GetIsReplayPlaying())
             {
-                Debug.Log("Starting Rewind");
                 ReplayManager.Instance.StartReplay();
             }
             

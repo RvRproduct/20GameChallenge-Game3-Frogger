@@ -135,6 +135,7 @@ public class Player : MonoBehaviour
             {
                 if (hit.collider.gameObject.tag == "Treasure")
                 {
+                    Debug.Log("IHASJofha");
                     GameManager.Instance.GetTreasure().TriggerOpen();
                 }
 

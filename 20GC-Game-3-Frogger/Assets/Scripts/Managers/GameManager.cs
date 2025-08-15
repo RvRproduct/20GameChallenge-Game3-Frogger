@@ -30,9 +30,14 @@ public class GameManager : MonoBehaviour
         return gameTimer;
     }
 
-    public void SetPlayerToStartingLocation()
+    public Player GetPlayer()
     {
-        player.transform.position = player.GetPlayerStartingLocation();
+        return player;
+    }
+
+    public void SetPlayerStartingLocation(Vector3 _startingLocation)
+    {
+        player.transform.position = _startingLocation;
     }
 
     public Treasure GetTreasure()

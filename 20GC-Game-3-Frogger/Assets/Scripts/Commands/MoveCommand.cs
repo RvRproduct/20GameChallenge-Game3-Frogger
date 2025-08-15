@@ -31,4 +31,14 @@ public class MoveCommand : Command
     private float playerY;
     private float directionX;
     private float directionY;
+
+    public float GetPlayerX()
+    {
+        return playerX;
+    }
+
+    public float GetPlayerY()
+    {
+        return playerY;
+    }
 }
