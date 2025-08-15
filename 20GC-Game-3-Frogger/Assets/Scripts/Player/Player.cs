@@ -82,7 +82,14 @@ public class Player : MonoBehaviour
         SetTriggerIdle();
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
-            ReplayManager.Instance.IncrementCurrentRecordedCommand();
+            if (!ReplayManager.Instance.GetIsRewinding())
+            {
+                ReplayManager.Instance.IncrementCurrentRecordedCommand();
+            }
+            else
+            {
+                ReplayManager.Instance.DecrementCurrentRecordedCommand();
+            }
         }
         command.finished = false;
         inMiddleOfMoveCommand = false;
