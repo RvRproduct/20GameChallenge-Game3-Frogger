@@ -1,3 +1,4 @@
+// Game and Code By RvRproduct (Roberto Valentino Reynoso)
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
@@ -52,7 +53,7 @@ public class InputHandler : MonoBehaviour
 
     private void ApplyMovement(InputAction.CallbackContext context)
     {
-        if (!player.GetInMiddleOfMoveCommand())
+        if (!player.GetInMiddleOfMoveCommand() && !GameManager.Instance.GetPlayer().GetIsDead())
         {
             player.SetInMiddleOfMoveCommand(true);
             if (inputControls != null && gameObject != null)

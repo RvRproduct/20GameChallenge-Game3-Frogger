@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
-using UnityEditor.Build;
 
 public class Player : MonoBehaviour
 {
@@ -14,16 +13,22 @@ public class Player : MonoBehaviour
     [SerializeField] private float rayDistance = 5;
     [SerializeField] LayerMask blockLayer;
     private bool inMiddleOfMoveCommand = false;
+    private BoxCollider2D boxCollider2D;
+    private int maxPlayerLives = 3;
+    private int currentPlayerLives;
+    private bool isDead = false;
 
     private void Awake()
     {
         playerLocation = transform.position;
         playerStartingLocation = transform.position;
         animator = GetComponent<Animator>();
+        boxCollider2D = GetComponent<BoxCollider2D>();
+        currentPlayerLives = maxPlayerLives;
     }
     public void MovePlayer(float _playerX, float _playerY, float directionX, float directionY, Command command)
     {
-        if (playerMoving == null && gameObject.activeInHierarchy)
+        if (playerMoving == null && gameObject.activeInHierarchy && !isDead)
         {
             SetTriggerWalk();
             playerMoving = StartCoroutine(PlayerMoving(new Vector3(_playerX, _playerY, 0.0f),
@@ -78,8 +83,11 @@ public class Player : MonoBehaviour
         {
             SetPlayerLocation(_newPlayerLocation);
         }
-   
-        SetTriggerIdle();
+        if (!isDead)
+        {
+            SetTriggerIdle();
+        }
+        
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
             if (!ReplayManager.Instance.GetIsRewinding())
@@ -97,17 +105,43 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        //if (collision.gameObject.tag == "KillingEntity")
-        //{
-        //    //gameObject.SetActive(false);
-        //    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        //}
+        
+        if (collision.gameObject.tag == "KillingEntity")
+        {
+            PlayerDie();
+        }
+    }
+
+    public void PlayerDie()
+    {
+        if (currentPlayerLives >= 1)
+        {
+            boxCollider2D.enabled = false;
+            isDead = true;
+            UIManager.Instance.TakeALifeAway();
+            SetTriggerDeath();
+        }
     }
 
 
     public void OnDeath()
     {
+        currentPlayerLives--;
 
+        if (currentPlayerLives >= 1)
+        {
+            isDead = false;
+            transform.position = playerStartingLocation;
+            GameManager.Instance.ResetCurrentCountDown();
+            boxCollider2D.enabled = true;
+            SetTriggerIdle();
+        }
+       
+    }
+
+    public bool GetIsDead()
+    {
+        return isDead;
     }
 
     private bool HitBlock(Vector2 origin ,Vector2 direction)
@@ -135,7 +169,6 @@ public class Player : MonoBehaviour
             {
                 if (hit.collider.gameObject.tag == "Treasure")
                 {
-                    Debug.Log("IHASJofha");
                     GameManager.Instance.GetTreasure().TriggerOpen();
                 }
 
@@ -182,5 +215,10 @@ public class Player : MonoBehaviour
     private void SetTriggerWalk()
     {
         animator.SetTrigger("Walk");
+    }
+
+    private void SetTriggerDeath()
+    {
+        animator.SetTrigger("Death");
     }
 }

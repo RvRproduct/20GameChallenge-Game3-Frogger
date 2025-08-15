@@ -1,4 +1,5 @@
-using Unity.VisualScripting;
+// Game and Code By RvRproduct (Roberto Valentino Reynoso)
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,10 +18,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button rewindButton;
     [SerializeField] private Button pauseButton;
 
-    //[Header("Replay Images")]
-    //[SerializeField] private Image forwardImage;
-    //[SerializeField] private Image rewindImage;
-    //[SerializeField] private Image pauseImage;
+    [Header("Player Lives")]
+    [SerializeField] private GameObject lifeOne;
+    [SerializeField] private GameObject lifeTwo;
+    [SerializeField] private GameObject lifeThree;
+
+    [Header("Count Down Timer")]
+    [SerializeField] private TextMeshProUGUI countDownText;
 
 
     private Color selectedColor = new Color(1.0f, 1.0f, 0.0f);
@@ -143,5 +147,29 @@ public class UIManager : MonoBehaviour
             forwardButton.colors = unSelectedColorBlock;
             isForward = false;
         }
+    }
+
+    public void TakeALifeAway()
+    {
+        if (lifeOne.activeInHierarchy)
+        {
+            lifeOne.SetActive(false);
+        }
+        else if (lifeTwo.activeInHierarchy)
+        {
+            lifeTwo.SetActive(false);
+        }
+        else if (lifeThree.activeInHierarchy)
+        {
+            lifeThree.SetActive(false);
+        }
+    }
+
+   public void UpdateCountDownTimer(int currentCountDown)
+    {
+        int mins = currentCountDown / 60;
+        int seconds = currentCountDown % 60;
+
+        countDownText.text = $"{mins:0}:{seconds:00}";
     }
 }
