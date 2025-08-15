@@ -40,12 +40,13 @@ public class EntityManager : ObjectPool
         }
 
         base.Awake();
+
+        ResetSpawnTimes();
     }
 
     private void Start()
     {
         SetUpObjectPool();
-        SpawnEntitiesInWorld();
     }
 
     private void Update()
@@ -145,12 +146,22 @@ public class EntityManager : ObjectPool
 
     public void ResetAllEntities()
     {
+        ResetSpawnTimes();
+
         foreach (string poolObjectKey in objectPool.Keys)
         {
             foreach (GameObject poolObject in objectPool[poolObjectKey])
             {
                 poolObject.SetActive(false);
             }
+        }
+    }
+
+    private void ResetSpawnTimes()
+    {
+        foreach (EntityLocationPlacement entityLocation in entityLocationPlacements)
+        {
+            entityLocation.currentSpawnRateTime = entityLocation.maxSpawnRateTime;
         }
     }
 

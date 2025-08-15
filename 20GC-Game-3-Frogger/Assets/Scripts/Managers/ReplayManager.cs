@@ -43,11 +43,16 @@ public class ReplayManager : MonoBehaviour
         }
 
         if (currentRecordedCommand < recordedCommands.Count &&
-            currentRecordedCommand >= 0)
+            currentRecordedCommand > 0)
         {
             playBackTimer = recordedCommands[currentRecordedCommand].timeStamp;
         }
-        
+        else
+        {
+            Debug.Log("Here");
+            playBackTimer = 0.0f;
+        }
+
         // Normal
         while (isReplayPlaying && 
             currentRecordedCommand <= recordedCommands.Count - 1 &&
@@ -113,8 +118,10 @@ public class ReplayManager : MonoBehaviour
     {
         if (!isRewinding)
         {
+            // This will need more logic soon
+            GameManager.Instance.ResetCurrentCountDown();
             GameManager.Instance.SetPlayerStartingLocation(
-            GameManager.Instance.GetPlayer().transform.position);
+            GameManager.Instance.GetPlayer().GetPlayerStartingLocation());
             currentRecordedCommand = 0;
         }
         else

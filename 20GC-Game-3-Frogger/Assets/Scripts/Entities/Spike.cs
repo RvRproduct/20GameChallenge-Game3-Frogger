@@ -18,8 +18,16 @@ public class Spike : MonoBehaviour
     {
         if (isHater)
         {
-            ActivateSpike();
+            if (ReplayManager.Instance.GetIsReplayPlaying())
+            {
+                ActivateSpike();
+            }
         }
+    }
+
+    public void ResetSpike()
+    {
+        currentSpikeHaterCoolDown = 0.0f;
     }
 
     private void ActivateSpike()

@@ -93,8 +93,6 @@ public class UIManager : MonoBehaviour
     {
         ReplayManager.Instance.RestartReplay();
         EntityManager.Instance.ResetAllEntities();
-        GameManager.Instance.SetPlayerStartingLocation(
-            GameManager.Instance.GetPlayer().transform.position);
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
             ReplayManager.Instance.StartReplay();
@@ -202,7 +200,8 @@ public class UIManager : MonoBehaviour
     {
         replayModePrompt.SetActive(false);
         ReplayManager.Instance.SetIsReplayPlaying(false);
-        EntityManager.Instance.ResetAllEntities();
+        SpikeManager.Instance.ResetSpikes();
+        RestartReplay();
         replayMode.SetActive(true);
     }
 

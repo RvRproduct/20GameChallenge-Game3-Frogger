@@ -4,11 +4,11 @@ using System.Numerics;
 public class MoveCommand : Command
 {
     public MoveCommand(Player _player,
-        float _playerX, float _playerY, float _directionX, float _directionY,
+        float _playerX, float _playerY, float _directionX, float _directionY, 
         float _timeStamp, bool _finished) 
     {
-        timeStamp = _timeStamp;
         finished = _finished;
+        timeStamp = _timeStamp;
         directionX = _directionX;
         directionY = _directionY;
         player = _player;        

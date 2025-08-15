@@ -26,7 +26,9 @@ public class Player : MonoBehaviour
         boxCollider2D = GetComponent<BoxCollider2D>();
         currentPlayerLives = maxPlayerLives;
     }
-    public void MovePlayer(float _playerX, float _playerY, float directionX, float directionY, Command command)
+    public void MovePlayer(float _playerX, 
+        float _playerY, float directionX,
+        float directionY, Command command)
     {
         if (playerMoving == null && gameObject.activeInHierarchy && !isDead)
         {

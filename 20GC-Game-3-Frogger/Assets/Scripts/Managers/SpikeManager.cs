@@ -20,16 +20,32 @@ public class SpikeManager : MonoBehaviour
     [Header("Spikes")]
     [SerializeField] private List<Spike> spikeFriendsOne;
     [SerializeField] private List<Spike> spikeFriendsTwo;
+    [SerializeField] private List<Spike> spikeHaters;
 
     [Header("Spike Friend Timing")]
     [SerializeField] private float timeBetweenSpikeFriends = 3.0f;
     private float currentTimeBetweenSpikeFriends = 0.0f;
+    private bool initialOtherSpikeFriend = false;
     private bool activateOtherSpikeFriend = false;
 
 
     private void Update()
     {
-        ActivateSpikes();
+        if (ReplayManager.Instance.GetIsReplayPlaying())
+        {
+            ActivateSpikes();
+        }
+    }
+
+    public void ResetSpikes()
+    {
+        currentTimeBetweenSpikeFriends = 0.0f;
+        activateOtherSpikeFriend = initialOtherSpikeFriend;
+
+        foreach(Spike spike in spikeHaters)
+        {
+            spike.ResetSpike();
+        }
     }
 
     private void ActivateSpikes()
