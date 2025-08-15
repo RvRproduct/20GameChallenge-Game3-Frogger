@@ -39,12 +39,14 @@ public class SpikeManager : MonoBehaviour
 
     public void ResetSpikes()
     {
+        Debug.Log("Reset Spikes");
         currentTimeBetweenSpikeFriends = 0.0f;
+        ReturnToBaseAnimation();
         activateOtherSpikeFriend = initialOtherSpikeFriend;
 
-        foreach(Spike spike in spikeHaters)
+        foreach (Spike spike in spikeHaters)
         {
-            spike.ResetSpike();
+            spike.ResetSpikeHater();
         }
     }
 
@@ -72,11 +74,29 @@ public class SpikeManager : MonoBehaviour
                     if (!spike.GetIsHater())
                     {
                         spike.TriggerActivate();
-                    }  
+                    }
                 }
                 activateOtherSpikeFriend = false;
                 currentTimeBetweenSpikeFriends = 0.0f;
             }
-        }       
+        }
+    }
+
+    private void ReturnToBaseAnimation()
+    {
+        foreach (Spike spike in spikeFriendsOne)
+        {
+            spike.GetAnimator().Play("Deactivate");
+        }
+
+        foreach (Spike spike in spikeFriendsTwo)
+        {
+            spike.GetAnimator().Play("Deactivate");
+        }
+
+        foreach (Spike spike in spikeHaters)
+        {
+            spike.GetAnimator().Play("Deactivate");
+        }
     }
 }

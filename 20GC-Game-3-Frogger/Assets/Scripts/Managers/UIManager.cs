@@ -93,6 +93,7 @@ public class UIManager : MonoBehaviour
     {
         ReplayManager.Instance.RestartReplay();
         EntityManager.Instance.ResetAllEntities();
+        SpikeManager.Instance.ResetSpikes();
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
             ReplayManager.Instance.StartReplay();
@@ -200,7 +201,6 @@ public class UIManager : MonoBehaviour
     {
         replayModePrompt.SetActive(false);
         ReplayManager.Instance.SetIsReplayPlaying(false);
-        SpikeManager.Instance.ResetSpikes();
         RestartReplay();
         replayMode.SetActive(true);
     }

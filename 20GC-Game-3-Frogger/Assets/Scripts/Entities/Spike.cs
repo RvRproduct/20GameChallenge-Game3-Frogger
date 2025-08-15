@@ -25,7 +25,7 @@ public class Spike : MonoBehaviour
         }
     }
 
-    public void ResetSpike()
+    public void ResetSpikeHater()
     {
         currentSpikeHaterCoolDown = 0.0f;
     }
@@ -64,5 +64,10 @@ public class Spike : MonoBehaviour
     public void TriggerDeactivate()
     {
         animator.SetTrigger("Deactivate");
+    }
+
+    public Animator GetAnimator()
+    {
+        return animator;
     }
 }
