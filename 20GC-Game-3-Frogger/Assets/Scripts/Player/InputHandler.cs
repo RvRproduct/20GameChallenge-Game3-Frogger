@@ -40,9 +40,9 @@ public class InputHandler : MonoBehaviour
     protected Command HandleInput(Vector2 startPosition, Vector2 endPosition, Vector2 direction)
     {
         return new MoveCommand(player,
-            Vector2Conversions.ToSystem(startPosition),
-            Vector2Conversions.ToSystem(endPosition),
-            Vector2Conversions.ToSystem(direction),
+            VectorConversions.ToSystem(startPosition),
+            VectorConversions.ToSystem(endPosition),
+            VectorConversions.ToSystem(direction),
             GameManager.Instance.GetGlobalTick(),
             true);
     }

@@ -130,6 +130,12 @@ public class UIManager : MonoBehaviour
                 ReplayManager.Instance.SetIsRewinding(true);
             }
 
+            if (isFirstTime)
+            {
+                ReplayManager.Instance.SetIsReplayPlaying(true);
+                isFirstTime = false;
+            }
+
             if (ReplayManager.Instance.GetIsReplayPlaying())
             {
                 ReplayManager.Instance.StartReplay();

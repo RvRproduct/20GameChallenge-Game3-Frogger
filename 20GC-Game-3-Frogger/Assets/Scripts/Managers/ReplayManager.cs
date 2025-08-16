@@ -40,7 +40,6 @@ public class ReplayManager : MonoBehaviour
 
     public void StartReplay()
     {
-        isReplayPlaying = true;
         StopAllCoroutines();
         StartCoroutine(PlayRecordedCommands(CommandType.PlayerMoving));
     }
@@ -184,7 +183,7 @@ public class ReplayManager : MonoBehaviour
         else
         {
             // NEEDS More logic for other edge cases
-            Vector2 startPosition = Vector2Conversions.ToUnity(((MoveCommand)
+            Vector2 startPosition = VectorConversions.ToUnity(((MoveCommand)
                 recordedPlayerMovingCommands[recordedPlayerMovingCommands.Count - 1]).GetStartPosition());
 
             GameManager.Instance.SetPlayerStartingLocation(

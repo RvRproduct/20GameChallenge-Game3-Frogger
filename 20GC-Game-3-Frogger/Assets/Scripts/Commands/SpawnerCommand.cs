@@ -4,11 +4,12 @@ using System.Numerics;
 public class SpawnerCommand : Command
 {
     public SpawnerCommand(EntityManager _entityManager,
-        ReplayManager _replayManager, int _startTick, 
-        int _endTick ,bool _finished) 
+        string _entityTag, Vector3 _spawnPoint,
+        int _startTick, int _endTick ,bool _finished) 
     {
         entityManager = _entityManager;
-        replayManager = _replayManager;
+        entityTag = _entityTag;
+        spawnPoint = _spawnPoint;
         startTick = _startTick;
         endTick = _endTick;
         finished = _finished;
@@ -16,10 +17,21 @@ public class SpawnerCommand : Command
     public override void Execute()
     {
         finished = true;
-        entityManager.SpawnEntities();
+        entityManager.SpawnEntity(this);
     }
 
     private EntityManager entityManager;
-    private ReplayManager replayManager;
+    private string entityTag;
+    private Vector3 spawnPoint;
+
+    public string GetEntityTag()
+    {
+        return entityTag;
+    }
+
+    public Vector3 GetSpawnPoint()
+    {
+        return spawnPoint;
+    }
 
 }

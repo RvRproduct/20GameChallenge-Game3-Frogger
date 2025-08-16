@@ -28,7 +28,6 @@ public class EntityManager : ObjectPool
     [SerializeField] private List<EntityLocationPlacement> entityLocationPlacements;
 
     // For Play Back Purposes
-    private Command spawn;
     private Coroutine spawning;
 
     protected override void Awake()
@@ -43,7 +42,6 @@ public class EntityManager : ObjectPool
         }
 
         base.Awake();
-        spawn = null;
 
         ResetSpawnTimes();
     }
@@ -75,10 +73,14 @@ public class EntityManager : ObjectPool
 
     private void SpawnTimer()
     {
-        Command command = HandleSpawn();
-        ReplayManager.Instance.AddRecordedCommand(CommandType.Spawning, command);
-        HandleCommand(command);
 
+        if (spawning == null)
+        {
+            if (ReplayManager.Instance.GetIsReplayPlaying())
+            {
+                spawning = StartCoroutine(SpawnEntitiesInWorld());
+            }
+        }
     }
 
     private void HandleCommand(Command _spawn)
@@ -86,11 +88,11 @@ public class EntityManager : ObjectPool
         _spawn.Execute();
     }
 
-    private Command HandleSpawn()
+    private Command HandleSpawn(string _entityTag, Vector3 _spawnPoint)
     {
-        spawn = null;
-        return spawn = new SpawnerCommand(this,
-            ReplayManager.Instance,
+        return new SpawnerCommand(this,
+            _entityTag,
+            VectorConversions.ToSystem(_spawnPoint),
             GameManager.Instance.GetGlobalTick(),
             GameManager.Instance.GetGlobalTick(),
             true);
@@ -141,7 +143,6 @@ public class EntityManager : ObjectPool
                     }
                     break;
             }
-            spawning = null;
 
             if (ReplayManager.Instance.GetIsReplayPlaying() &&
                 ReplayManager.Instance.GetIsInReplayMode())
@@ -155,6 +156,8 @@ public class EntityManager : ObjectPool
                     ReplayManager.Instance.DecrementCurrentRecordedCommand(CommandType.Spawning);
                 }
             }
+
+            spawning = null;
 
             yield return null;
         }
@@ -171,10 +174,21 @@ public class EntityManager : ObjectPool
         return false;
     }
 
-    private void SpawnEntity(string entityTag, Vector3 spawnPoint)
+    // For Command on Execute
+    public void SpawnEntity(Command _spawnCommand)
     {
-        GameObject validObject = GetValidObjectInPool(entityTag);
-        validObject.transform.position = spawnPoint;
+        GameObject validObject = GetValidObjectInPool(((SpawnerCommand)_spawnCommand).GetEntityTag());
+        validObject.transform.position = VectorConversions.ToUnity(((SpawnerCommand)_spawnCommand).GetSpawnPoint());
+        _spawnCommand.finished = false;
+    }
+
+    // For Setting up the Command... Ya it could be named something else, but eh overload haha
+    public void SpawnEntity(string entityTag, Vector3 spawnPoint)
+    {
+        Command spawnCommand = HandleSpawn(entityTag, spawnPoint);
+        ReplayManager.Instance.AddRecordedCommand(CommandType.Spawning, spawnCommand);
+        HandleCommand(spawnCommand);
+        spawnCommand.Execute();
     }
 
     private void CheckReplaySpawnPoint(string entityTag, EntityLocationPlacement entityLocation)

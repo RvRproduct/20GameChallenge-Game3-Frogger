@@ -61,7 +61,7 @@ public class Entity : BasePoolObject
         return EntitySelection();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         CheckForReplayBeforeMove();
     }
@@ -74,11 +74,11 @@ public class Entity : BasePoolObject
             {
                 if (!ReplayManager.Instance.GetIsRewinding())
                 {
-                    transform.position += Vector3.left * speed * Time.deltaTime;
+                    transform.position += Vector3.left * speed * Time.fixedDeltaTime;
                 }
                 else
                 {
-                    transform.position += Vector3.right * speed * Time.deltaTime;
+                    transform.position += Vector3.right * speed * Time.fixedDeltaTime;
                 }
 
             }
@@ -86,11 +86,11 @@ public class Entity : BasePoolObject
             {
                 if (!ReplayManager.Instance.GetIsRewinding())
                 {
-                    transform.position += Vector3.right * speed * Time.deltaTime;
+                    transform.position += Vector3.right * speed * Time.fixedDeltaTime;
                 }
                 else
                 {
-                    transform.position += Vector3.left * speed * Time.deltaTime;
+                    transform.position += Vector3.left * speed * Time.fixedDeltaTime;
                 }
             }
         }

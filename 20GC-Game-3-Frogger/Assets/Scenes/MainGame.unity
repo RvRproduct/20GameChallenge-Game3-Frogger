@@ -9429,19 +9429,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[0].MAXPOOLSIZE
-      value: 30
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[1].MAXPOOLSIZE
-      value: 20
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[2].MAXPOOLSIZE
-      value: 20
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[3].MAXPOOLSIZE
-      value: 20
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[4].MAXPOOLSIZE

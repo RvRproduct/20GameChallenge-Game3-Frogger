@@ -49,7 +49,7 @@ public class Player : MonoBehaviour
         while (!isDoneMoving)
         {
             if (!HitBlock(transform.position, 
-                Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetDirection())))
+                VectorConversions.ToUnity(((MoveCommand)moveCommand).GetDirection())))
             {
                 float rawMoveProgress = (GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
                 / (float)(moveCommand.endTick - moveCommand.startTick);
@@ -57,8 +57,8 @@ public class Player : MonoBehaviour
                 float moveProgress = Mathf.Clamp01(rawMoveProgress);
 
                 transform.position = Vector3.Lerp(
-                     Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
-                     Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
+                     VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
+                     VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
                     moveProgress);
 
                 if (GameManager.Instance.GetReplayDirection() == ReplayDirection.Forward)
@@ -93,7 +93,7 @@ public class Player : MonoBehaviour
 
             transform.position = Vector3.Lerp(
                 transform.position,
-                Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
+                VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
                 moveProgress);
 
             if (GameManager.Instance.GetReplayDirection() == ReplayDirection.Forward)
@@ -111,11 +111,11 @@ public class Player : MonoBehaviour
         if (hitBlockReaction)
         {
             hitBlockReaction = false;
-            SetPlayerLocation(Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()));
+            SetPlayerLocation(VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()));
         }
         else
         {
-            SetPlayerLocation(Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()));
+            SetPlayerLocation(VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()));
         }
         if (!isDead)
         {
