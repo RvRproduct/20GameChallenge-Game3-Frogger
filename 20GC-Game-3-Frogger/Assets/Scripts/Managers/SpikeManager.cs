@@ -39,7 +39,6 @@ public class SpikeManager : MonoBehaviour
 
     public void ResetSpikes()
     {
-        Debug.Log("Reset Spikes");
         currentTimeBetweenSpikeFriends = 0.0f;
         ReturnToBaseAnimation();
         activateOtherSpikeFriend = initialOtherSpikeFriend;

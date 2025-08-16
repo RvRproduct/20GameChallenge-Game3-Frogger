@@ -64,7 +64,7 @@ public class InputHandler : MonoBehaviour
                     transform.position.y + (playerMovement.y * playerMoveDistance));
                 Command currentCommand = HandleInput(newPlayerLocation.x, newPlayerLocation.y,
                     playerMovement.x, playerMovement.y);
-                ReplayManager.Instance.AddRecordedCommand(currentCommand);
+                ReplayManager.Instance.AddRecordedPlayerMovingCommand(currentCommand);
                 HandleCommand(currentCommand);
             }
         } 

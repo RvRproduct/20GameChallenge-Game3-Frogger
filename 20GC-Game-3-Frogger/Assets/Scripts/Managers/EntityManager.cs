@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
-using System.Xml.Serialization;
 
 public enum EntityTypes
 {
@@ -28,6 +27,13 @@ public class EntityManager : ObjectPool
 
     [SerializeField] private List<EntityLocationPlacement> entityLocationPlacements;
 
+    // For Play Back Purposes
+    private Command spawn;
+    private float playBackTimer;
+    private Coroutine spawning;
+    private bool isReplayPlaying = false;
+    private int currentRecordedCommand = 0;
+
     protected override void Awake()
     {
         if (Instance == null)
@@ -40,6 +46,7 @@ public class EntityManager : ObjectPool
         }
 
         base.Awake();
+        spawn = null;
 
         ResetSpawnTimes();
     }
@@ -49,20 +56,58 @@ public class EntityManager : ObjectPool
         SetUpObjectPool();
     }
 
+    public void SpawnEntities()
+    {
+        if (spawning == null)
+        {
+            if (ReplayManager.Instance.GetIsReplayPlaying())
+            {
+                spawning = StartCoroutine(SpawnEntitiesInWorld());
+            }
+        }
+    }
+
     private void Update()
     {
-        SpawnTimer();
+        if (spawning == null &&
+            !ReplayManager.Instance.GetIsInReplayMode())
+        {
+            SpawnTimer();
+        } 
     }
 
     private void SpawnTimer()
     {
-        if (ReplayManager.Instance.GetIsReplayPlaying())
-        {
-            SpawnEntitiesInWorld();
-        }
+        Command command = HandleSpawn();
+        ReplayManager.Instance.AddRecordedSpawningCommand(command);
+        HandleCommand(command);
+
     }
 
-    private void SpawnEntitiesInWorld()
+    private void HandleCommand(Command _spawn)
+    {
+        _spawn.Execute();
+    }
+
+    private Command HandleSpawn()
+    {
+        spawn = null;
+        return spawn = new SpawnerCommand(this,
+            ReplayManager.Instance,
+            GameManager.Instance.GetGameTimer(),
+            true);
+    }
+
+    public void StartReplay()
+    {
+        isReplayPlaying = true;
+        StopAllCoroutines();
+        StartCoroutine(ReplayManager.Instance.PlayRecordedCommands(
+            currentRecordedCommand, ReplayManager.Instance.GetRecordedSpawningCommands(),
+            playBackTimer, isReplayPlaying, ReplayManager.Instance.GetIsRewinding()));
+    }
+
+    private IEnumerator SpawnEntitiesInWorld()
     {
         foreach (EntityLocationPlacement entityLocation in entityLocationPlacements)
         {
@@ -101,6 +146,9 @@ public class EntityManager : ObjectPool
                     }
                     break;
             }
+            spawning = null;
+
+            yield return null;
         }
     }
 
@@ -178,5 +226,15 @@ public class EntityManager : ObjectPool
                 poolObject.GetComponent<BasePoolObject>().SetPoolReturnTagForReplay();
             }
         }
+    }
+
+    public void IncrementCurrentRecordedCommand()
+    {
+        currentRecordedCommand++;
+    }
+
+    public void DecrementCurrentRecordedCommand()
+    {
+        currentRecordedCommand--;
     }
 }

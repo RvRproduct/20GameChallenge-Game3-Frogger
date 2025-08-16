@@ -77,6 +77,7 @@ public class UIManager : MonoBehaviour
                 if (isForward || isRewind)
                 {
                     ReplayManager.Instance.StartReplay();
+                    EntityManager.Instance.StartReplay();
                 }
             }
         }
@@ -97,6 +98,7 @@ public class UIManager : MonoBehaviour
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
             ReplayManager.Instance.StartReplay();
+            EntityManager.Instance.StartReplay();
         }
     }
 
@@ -120,6 +122,7 @@ public class UIManager : MonoBehaviour
             if (ReplayManager.Instance.GetIsReplayPlaying())
             {
                 ReplayManager.Instance.StartReplay();
+                EntityManager.Instance.StartReplay();
             }
 
         }
@@ -156,6 +159,7 @@ public class UIManager : MonoBehaviour
             if (ReplayManager.Instance.GetIsReplayPlaying())
             {
                 ReplayManager.Instance.StartReplay();
+                EntityManager.Instance.StartReplay();
             }
 
         }
@@ -202,6 +206,7 @@ public class UIManager : MonoBehaviour
         replayModePrompt.SetActive(false);
         ReplayManager.Instance.SetIsReplayPlaying(false);
         RestartReplay();
+        ReplayManager.Instance.SetIsInReplayMode(true);
         replayMode.SetActive(true);
     }
 

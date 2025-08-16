@@ -7,10 +7,12 @@ public class ReplayManager : MonoBehaviour
 {
     public static ReplayManager Instance;
     private int currentRecordedCommand = 0;
-    private List<Command> recordedCommands = new List<Command>();
+    private List<Command> recordedPlayMovingCommands = new List<Command>();
+    private List<Command> recordedSpawningCommands = new List<Command>();
     private float playBackTimer = 0.0f;
     private bool isReplayPlaying = true;
     private bool isRewinding = false;
+    private bool isInReplayMode = false;
 
     private void Awake()
     {
@@ -28,10 +30,13 @@ public class ReplayManager : MonoBehaviour
     {
         isReplayPlaying = true;
         StopAllCoroutines();
-        StartCoroutine(PlayRecordedCommands());
+        StartCoroutine(PlayRecordedCommands(currentRecordedCommand, recordedPlayMovingCommands,
+            playBackTimer, isReplayPlaying, isRewinding));
     }
 
-    public IEnumerator PlayRecordedCommands()
+    public IEnumerator PlayRecordedCommands(int currentRecordedCommand, 
+        List<Command> recordedCommands, float playBackTimer, bool isReplayPlaying, 
+        bool isRewinding)
     {
         if (currentRecordedCommand >= recordedCommands.Count)
         {
@@ -49,7 +54,6 @@ public class ReplayManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("Here");
             playBackTimer = 0.0f;
         }
 
@@ -109,9 +113,14 @@ public class ReplayManager : MonoBehaviour
         isRewinding = _isRewinding;
     }
 
-    public void AddRecordedCommand(Command _command)
+    public void AddRecordedPlayerMovingCommand(Command _command)
     {
-        recordedCommands.Add(_command);
+        recordedPlayMovingCommands.Add(_command);
+    }
+
+    public void AddRecordedSpawningCommand(Command _command)
+    {
+        recordedSpawningCommands.Add(_command);
     }
 
     public void RestartReplay()
@@ -127,10 +136,10 @@ public class ReplayManager : MonoBehaviour
         else
         {
             GameManager.Instance.SetPlayerStartingLocation(
-                new Vector3(((MoveCommand)recordedCommands[recordedCommands.Count - 1]).GetPlayerX(),
-                ((MoveCommand)recordedCommands[recordedCommands.Count - 1]).GetPlayerY(),
+                new Vector3(((MoveCommand)recordedPlayMovingCommands[recordedPlayMovingCommands.Count - 1]).GetPlayerX(),
+                ((MoveCommand)recordedPlayMovingCommands[recordedPlayMovingCommands.Count - 1]).GetPlayerY(),
                 GameManager.Instance.GetPlayer().transform.position.z));
-            currentRecordedCommand = recordedCommands.Count - 1;
+            currentRecordedCommand = recordedPlayMovingCommands.Count - 1;
         }
     }
 
@@ -142,5 +151,20 @@ public class ReplayManager : MonoBehaviour
     public void DecrementCurrentRecordedCommand()
     {
         currentRecordedCommand--;
+    }
+
+    public bool GetIsInReplayMode()
+    {
+        return isInReplayMode;
+    }
+
+    public void SetIsInReplayMode(bool _isInReplayMode)
+    {
+        isInReplayMode = _isInReplayMode;
+    }
+
+    public List<Command> GetRecordedSpawningCommands()
+    {
+        return recordedSpawningCommands;
     }
 }
