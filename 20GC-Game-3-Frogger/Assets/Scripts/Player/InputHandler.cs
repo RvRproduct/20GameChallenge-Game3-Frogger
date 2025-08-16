@@ -9,12 +9,10 @@ public class InputHandler : MonoBehaviour
     [SerializeField] Player player;
     [SerializeField] float playerMoveDistance;
     protected InputControls inputControls;
-    private Command move;
 
     protected virtual void Awake()
     {
         inputControls = new InputControls();
-        move = null;
     }
 
     private void OnEnable()
@@ -39,15 +37,13 @@ public class InputHandler : MonoBehaviour
         _move.Execute();
     }
 
-    protected Command HandleInput(float newPlayerX, float newPlayerY, float directionX, float directionY)
+    protected Command HandleInput(Vector2 startPosition, Vector2 endPosition, Vector2 direction)
     {
-        move = null;
-        return move = new MoveCommand(player,
-            newPlayerX,
-            newPlayerY,
-            directionX,
-            directionY,
-            GameManager.Instance.GetGameTimer(),
+        return new MoveCommand(player,
+            Vector2Conversions.ToSystem(startPosition),
+            Vector2Conversions.ToSystem(endPosition),
+            Vector2Conversions.ToSystem(direction),
+            GameManager.Instance.GetGlobalTick(),
             true);
     }
 
@@ -62,9 +58,9 @@ public class InputHandler : MonoBehaviour
                 Vector2 newPlayerLocation = new Vector2(
                     transform.position.x + (playerMovement.x * playerMoveDistance),
                     transform.position.y + (playerMovement.y * playerMoveDistance));
-                Command currentCommand = HandleInput(newPlayerLocation.x, newPlayerLocation.y,
-                    playerMovement.x, playerMovement.y);
-                ReplayManager.Instance.AddRecordedPlayerMovingCommand(currentCommand);
+                Command currentCommand = HandleInput(transform.position, newPlayerLocation,
+                    playerMovement);
+                ReplayManager.Instance.AddRecordedCommand(CommandType.PlayerMoving, currentCommand);
                 HandleCommand(currentCommand);
             }
         } 

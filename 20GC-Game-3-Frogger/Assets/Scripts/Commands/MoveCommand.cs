@@ -4,41 +4,40 @@ using System.Numerics;
 public class MoveCommand : Command
 {
     public MoveCommand(Player _player,
-        float _playerX, float _playerY, float _directionX, float _directionY, 
-        float _timeStamp, bool _finished) 
+        Vector2 _startPosition, Vector2 _endPosition, Vector2 _direction, 
+        int _startTick, bool _finished) 
     {
-        finished = _finished;
-        timeStamp = _timeStamp;
-        directionX = _directionX;
-        directionY = _directionY;
-        player = _player;        
-        playerX = _playerX;
-        playerY = _playerY;
+        player = _player;
+        startPosition = _startPosition;
+        endPosition = _endPosition;
+        direction = _direction;
+        startTick = _startTick;
+        finished = _finished; 
     }
     public override void Execute()
     {
         finished = true;
-        player.MovePlayer(playerX, playerY, directionX, directionY, this);
+        player.MovePlayer(this);
     }
 
-    public override void Undo()
-    {
-        throw new System.NotImplementedException();
-    }
 
     private Player player;
-    private float playerX;
-    private float playerY;
-    private float directionX;
-    private float directionY;
+    private Vector2 startPosition; 
+    private Vector2 endPosition;
+    private Vector2 direction;
 
-    public float GetPlayerX()
+    public Vector2 GetStartPosition()
     {
-        return playerX;
+        return startPosition;
     }
 
-    public float GetPlayerY()
+    public Vector2 GetEndPosition()
     {
-        return playerY;
+        return endPosition;
+    }
+
+    public Vector2 GetDirection()
+    {
+        return direction;
     }
 }

@@ -8,10 +8,5 @@ public class DeathCommand : Command
         player.OnDeath();
     }
 
-    public override void Undo()
-    {
-        throw new System.NotImplementedException();
-    }
-
     private Player player;
 }

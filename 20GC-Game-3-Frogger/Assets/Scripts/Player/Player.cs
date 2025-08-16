@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using Unity.VisualScripting;
 
 public class Player : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class Player : MonoBehaviour
     private int maxPlayerLives = 3;
     private int currentPlayerLives;
     private bool isDead = false;
+    Command moveCommand = null;
 
     private void Awake()
     {
@@ -26,82 +28,114 @@ public class Player : MonoBehaviour
         boxCollider2D = GetComponent<BoxCollider2D>();
         currentPlayerLives = maxPlayerLives;
     }
-    public void MovePlayer(float _playerX, 
-        float _playerY, float directionX,
-        float directionY, Command command)
+    public void MovePlayer(Command command)
     {
         if (playerMoving == null && gameObject.activeInHierarchy && !isDead)
         {
+            moveCommand = (MoveCommand)command;
             SetTriggerWalk();
-            playerMoving = StartCoroutine(PlayerMoving(new Vector3(_playerX, _playerY, 0.0f),
-                new Vector2(directionX, directionY),command));
+            playerMoving = StartCoroutine(PlayerMoving());
         }
     }
 
-    private IEnumerator PlayerMoving(Vector3 _newPlayerLocation, 
-        Vector2 playerDirection, Command command)
+    private IEnumerator PlayerMoving()
     {
-        float elapsedTime = 0.0f;
-        Vector3 previousPosition = transform.position;
         bool hitBlockReaction = false;
+        long durationTicks = (long)Mathf.Max(1, Mathf.Round(playerDuration *
+            GameManager.Instance.GetTicksPerSecond()));
+        moveCommand.endTick = (int)(moveCommand.startTick + durationTicks);
+        bool isDoneMoving = false;
 
-        while (elapsedTime < playerDuration)
+        while (!isDoneMoving)
         {
-            if (!HitBlock(transform.position, playerDirection))
+            if (!HitBlock(transform.position, 
+                Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetDirection())))
             {
-                elapsedTime += Time.deltaTime;
-                float time = elapsedTime / playerDuration;
+                float rawMoveProgress = (GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
+                / (float)(moveCommand.endTick - moveCommand.startTick);
+
+                float moveProgress = Mathf.Clamp01(rawMoveProgress);
+
                 transform.position = Vector3.Lerp(
-                    transform.position,
-                    _newPlayerLocation,
-                    time);
+                     Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
+                     Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
+                    moveProgress);
+
+                if (GameManager.Instance.GetReplayDirection() == ReplayDirection.Forward)
+                {
+                    if (rawMoveProgress >= 1.0f) { isDoneMoving = true; }
+                }
+                else if (GameManager.Instance.GetReplayDirection() == ReplayDirection.Rewind)
+                {
+                    if (rawMoveProgress <= 0.0f) { isDoneMoving = true; }
+                }
                 yield return null;
             }
             else
             {
                 hitBlockReaction = true;
-                elapsedTime = 0.0f;
                 break;
             }     
         }
 
-        while (elapsedTime < playerDuration)
+        // If we hit a wall
+        if (!isDoneMoving)
         {
-            elapsedTime += Time.deltaTime;
-            float time = elapsedTime / playerDuration;
+            moveCommand.endTick += (int)durationTicks;
+        }
+
+        while (!isDoneMoving)
+        {
+            float rawMoveProgress = (GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
+                / (float)(moveCommand.endTick - moveCommand.startTick);
+
+            float moveProgress = Mathf.Clamp01(rawMoveProgress);
+
             transform.position = Vector3.Lerp(
                 transform.position,
-                previousPosition,
-                time);
+                Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
+                moveProgress);
+
+            if (GameManager.Instance.GetReplayDirection() == ReplayDirection.Forward)
+            {
+                if (rawMoveProgress >= 1.0f) { isDoneMoving = true; }
+            }
+            else if (GameManager.Instance.GetReplayDirection() == ReplayDirection.Rewind)
+            {
+                if (rawMoveProgress <= 0.0f) { isDoneMoving = true; }
+            }
+
             yield return null;
         }
 
         if (hitBlockReaction)
         {
             hitBlockReaction = false;
-            SetPlayerLocation(previousPosition);
+            SetPlayerLocation(Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()));
         }
         else
         {
-            SetPlayerLocation(_newPlayerLocation);
+            SetPlayerLocation(Vector2Conversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()));
         }
         if (!isDead)
         {
             SetTriggerIdle();
         }
         
-        if (ReplayManager.Instance.GetIsReplayPlaying())
+        if (ReplayManager.Instance.GetIsReplayPlaying() &&
+            ReplayManager.Instance.GetIsInReplayMode())
         {
             if (!ReplayManager.Instance.GetIsRewinding())
             {
-                ReplayManager.Instance.IncrementCurrentRecordedCommand();
+                ReplayManager.Instance.IncrementCurrentRecordedCommand(CommandType.PlayerMoving);
             }
             else
             {
-                ReplayManager.Instance.DecrementCurrentRecordedCommand();
+                ReplayManager.Instance.DecrementCurrentRecordedCommand(CommandType.PlayerMoving);
             }
         }
-        command.finished = false;
+
+        moveCommand.finished = false;
         inMiddleOfMoveCommand = false;
     }
 

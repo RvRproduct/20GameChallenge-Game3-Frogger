@@ -29,10 +29,7 @@ public class EntityManager : ObjectPool
 
     // For Play Back Purposes
     private Command spawn;
-    private float playBackTimer;
     private Coroutine spawning;
-    private bool isReplayPlaying = false;
-    private int currentRecordedCommand = 0;
 
     protected override void Awake()
     {
@@ -67,7 +64,7 @@ public class EntityManager : ObjectPool
         }
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (spawning == null &&
             !ReplayManager.Instance.GetIsInReplayMode())
@@ -79,7 +76,7 @@ public class EntityManager : ObjectPool
     private void SpawnTimer()
     {
         Command command = HandleSpawn();
-        ReplayManager.Instance.AddRecordedSpawningCommand(command);
+        ReplayManager.Instance.AddRecordedCommand(CommandType.Spawning, command);
         HandleCommand(command);
 
     }
@@ -94,24 +91,22 @@ public class EntityManager : ObjectPool
         spawn = null;
         return spawn = new SpawnerCommand(this,
             ReplayManager.Instance,
-            GameManager.Instance.GetGameTimer(),
+            GameManager.Instance.GetGlobalTick(),
+            GameManager.Instance.GetGlobalTick(),
             true);
     }
 
     public void StartReplay()
     {
-        isReplayPlaying = true;
         StopAllCoroutines();
-        StartCoroutine(ReplayManager.Instance.PlayRecordedCommands(
-            currentRecordedCommand, ReplayManager.Instance.GetRecordedSpawningCommands(),
-            playBackTimer, isReplayPlaying, ReplayManager.Instance.GetIsRewinding()));
+        StartCoroutine(ReplayManager.Instance.PlayRecordedCommands(CommandType.Spawning));
     }
 
     private IEnumerator SpawnEntitiesInWorld()
     {
         foreach (EntityLocationPlacement entityLocation in entityLocationPlacements)
         {
-            entityLocation.currentSpawnRateTime += Time.deltaTime;
+            entityLocation.currentSpawnRateTime += Time.fixedDeltaTime;
 
             switch (entityLocation.entityType)
             {
@@ -147,6 +142,19 @@ public class EntityManager : ObjectPool
                     break;
             }
             spawning = null;
+
+            if (ReplayManager.Instance.GetIsReplayPlaying() &&
+                ReplayManager.Instance.GetIsInReplayMode())
+            {
+                if (!ReplayManager.Instance.GetIsRewinding())
+                {
+                    ReplayManager.Instance.IncrementCurrentRecordedCommand(CommandType.Spawning);
+                }
+                else
+                {
+                    ReplayManager.Instance.DecrementCurrentRecordedCommand(CommandType.Spawning);
+                }
+            }
 
             yield return null;
         }
@@ -226,15 +234,5 @@ public class EntityManager : ObjectPool
                 poolObject.GetComponent<BasePoolObject>().SetPoolReturnTagForReplay();
             }
         }
-    }
-
-    public void IncrementCurrentRecordedCommand()
-    {
-        currentRecordedCommand++;
-    }
-
-    public void DecrementCurrentRecordedCommand()
-    {
-        currentRecordedCommand--;
     }
 }

@@ -3,42 +3,33 @@ using System.Numerics;
 
 public class EntityMoveCommand : Command
 {
-    public EntityMoveCommand(Player _player,
-        float _playerX, float _playerY, float _directionX, float _directionY, 
-        float _timeStamp, bool _finished) 
+    public EntityMoveCommand(Entity _entity,
+        Vector2 _startPosition, Vector2 _endPosition,
+        int _startTick, int _endTick, bool _finished) 
     {
+        entity = _entity;
+        startPosition = _startPosition;
+        endPosition = _endPosition;
+        startTick = _startTick;
+        endTick = _endTick;
         finished = _finished;
-        timeStamp = _timeStamp;
-        directionX = _directionX;
-        directionY = _directionY;
-        player = _player;        
-        playerX = _playerX;
-        playerY = _playerY;
+
     }
     public override void Execute()
     {
         finished = true;
-        player.MovePlayer(playerX, playerY, directionX, directionY, this);
     }
 
-    public override void Undo()
+    private Entity entity;
+    private Vector2 startPosition;
+    private Vector2 endPosition;
+    public Vector2 GetStartPosition()
     {
-        throw new System.NotImplementedException();
+        return startPosition;
     }
 
-    private Player player;
-    private float playerX;
-    private float playerY;
-    private float directionX;
-    private float directionY;
-
-    public float GetPlayerX()
+    public Vector2 GetEndPosition()
     {
-        return playerX;
-    }
-
-    public float GetPlayerY()
-    {
-        return playerY;
+        return endPosition;
     }
 }

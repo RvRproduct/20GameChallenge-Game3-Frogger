@@ -2,14 +2,26 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System.Data;
+
+public enum CommandType
+{
+    None,
+    PlayerMoving,
+    Spawning,
+    EntityMoving,
+    Spikes
+}
 
 public class ReplayManager : MonoBehaviour
 {
     public static ReplayManager Instance;
-    private int currentRecordedCommand = 0;
-    private List<Command> recordedPlayMovingCommands = new List<Command>();
+    // For Commands
+    private int currentRecordedPlayerMovingCommand = 0;
+    private int currentRecordedSpawningCommand = 0;
+    private List<Command> recordedPlayerMovingCommands = new List<Command>();
     private List<Command> recordedSpawningCommands = new List<Command>();
-    private float playBackTimer = 0.0f;
+    // End of For Commands
     private bool isReplayPlaying = true;
     private bool isRewinding = false;
     private bool isInReplayMode = false;
@@ -30,44 +42,37 @@ public class ReplayManager : MonoBehaviour
     {
         isReplayPlaying = true;
         StopAllCoroutines();
-        StartCoroutine(PlayRecordedCommands(currentRecordedCommand, recordedPlayMovingCommands,
-            playBackTimer, isReplayPlaying, isRewinding));
+        StartCoroutine(PlayRecordedCommands(CommandType.PlayerMoving));
     }
 
-    public IEnumerator PlayRecordedCommands(int currentRecordedCommand, 
-        List<Command> recordedCommands, float playBackTimer, bool isReplayPlaying, 
-        bool isRewinding)
+    public IEnumerator PlayRecordedCommands(CommandType commandType)
     {
-        if (currentRecordedCommand >= recordedCommands.Count)
-        {
-            currentRecordedCommand = recordedCommands.Count - 1;
-        }
-        else if (currentRecordedCommand < 0)
-        {
-            currentRecordedCommand = 0;
-        }
 
-        if (currentRecordedCommand < recordedCommands.Count &&
-            currentRecordedCommand > 0)
+        if (GetCurrentRecordedCommand(commandType) >= GetRecordedCommands(commandType).Count)
         {
-            playBackTimer = recordedCommands[currentRecordedCommand].timeStamp;
+            SetCurrentRecordedCommand(commandType, GetRecordedCommands(commandType).Count - 1);
         }
-        else
+        else if (GetCurrentRecordedCommand(commandType) < 0)
         {
-            playBackTimer = 0.0f;
+            SetCurrentRecordedCommand(commandType, 0);
         }
 
         // Normal
-        while (isReplayPlaying && 
-            currentRecordedCommand <= recordedCommands.Count - 1 &&
+        while (isReplayPlaying &&
+            GetCurrentRecordedCommand(commandType) <= GetRecordedCommands(commandType).Count - 1 &&
             !isRewinding)
         {
-            playBackTimer += Time.deltaTime;
-            if (playBackTimer >= recordedCommands[currentRecordedCommand].timeStamp)
+            if (GameManager.Instance.GetGlobalTick() >= 
+                GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].startTick)
             {
-                if (!recordedCommands[currentRecordedCommand].finished)
+                //Debug.Log("Playing Next Command on execute");
+                
+
+                if (!GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].finished)
                 {
-                    recordedCommands[currentRecordedCommand].Execute();
+                    Debug.Log("Command on execute");
+                    Debug.Log($"Current Recorded Command {GetCurrentRecordedCommand(commandType)}");
+                    GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].Execute();
                 }
             }
 
@@ -76,21 +81,60 @@ public class ReplayManager : MonoBehaviour
 
         // Rewind
         while (isReplayPlaying &&
-            currentRecordedCommand >= 0 &&
+            GetCurrentRecordedCommand(commandType) >= 0 &&
             isRewinding)
         {
-            playBackTimer -= Time.deltaTime;
-            if (playBackTimer <= recordedCommands[currentRecordedCommand].timeStamp)
+            if (GameManager.Instance.GetGlobalTick() <= 
+                GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].startTick)
             {
-                if (!recordedCommands[currentRecordedCommand].finished)
+                if (!GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].finished)
                 {
-                    recordedCommands[currentRecordedCommand].Execute();
+                    GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].Execute();
                 }
             }
 
             yield return null;
         }
 
+    }
+
+    private List<Command> GetRecordedCommands(CommandType commandType)
+    {
+        switch (commandType)
+        {
+            case CommandType.PlayerMoving:
+                return recordedPlayerMovingCommands;
+            case CommandType.Spawning:
+                return recordedSpawningCommands;
+            default:
+                return null;
+        }
+    }
+
+    public int GetCurrentRecordedCommand(CommandType commandType)
+    {
+        switch (commandType)
+        {
+            case CommandType.PlayerMoving:
+                return currentRecordedPlayerMovingCommand;
+            case CommandType.Spawning:
+                return currentRecordedSpawningCommand;
+            default:
+                return 0;
+        }
+    }
+
+    public void SetCurrentRecordedCommand(CommandType commandType ,int _currentCommand)
+    {
+        switch (commandType)
+        {
+            case CommandType.PlayerMoving:
+                currentRecordedPlayerMovingCommand = _currentCommand;
+                break;
+            case CommandType.Spawning:
+                currentRecordedSpawningCommand = _currentCommand;
+                break;
+        }
     }
 
     public bool GetIsReplayPlaying()
@@ -113,14 +157,17 @@ public class ReplayManager : MonoBehaviour
         isRewinding = _isRewinding;
     }
 
-    public void AddRecordedPlayerMovingCommand(Command _command)
+    public void AddRecordedCommand(CommandType commandType, Command _command)
     {
-        recordedPlayMovingCommands.Add(_command);
-    }
-
-    public void AddRecordedSpawningCommand(Command _command)
-    {
-        recordedSpawningCommands.Add(_command);
+        switch (commandType)
+        {
+            case CommandType.PlayerMoving:
+                recordedPlayerMovingCommands.Add(_command);
+                break;
+            case CommandType.Spawning:
+                recordedSpawningCommands.Add(_command);
+                break;
+        }
     }
 
     public void RestartReplay()
@@ -131,26 +178,46 @@ public class ReplayManager : MonoBehaviour
             GameManager.Instance.ResetCurrentCountDown();
             GameManager.Instance.SetPlayerStartingLocation(
             GameManager.Instance.GetPlayer().GetPlayerStartingLocation());
-            currentRecordedCommand = 0;
+            currentRecordedPlayerMovingCommand = 0;
+            currentRecordedSpawningCommand = 0;
         }
         else
         {
+            // NEEDS More logic for other edge cases
+            Vector2 startPosition = Vector2Conversions.ToUnity(((MoveCommand)
+                recordedPlayerMovingCommands[recordedPlayerMovingCommands.Count - 1]).GetStartPosition());
+
             GameManager.Instance.SetPlayerStartingLocation(
-                new Vector3(((MoveCommand)recordedPlayMovingCommands[recordedPlayMovingCommands.Count - 1]).GetPlayerX(),
-                ((MoveCommand)recordedPlayMovingCommands[recordedPlayMovingCommands.Count - 1]).GetPlayerY(),
+                new Vector3(startPosition.x, startPosition.y,
                 GameManager.Instance.GetPlayer().transform.position.z));
-            currentRecordedCommand = recordedPlayMovingCommands.Count - 1;
+            currentRecordedPlayerMovingCommand = recordedPlayerMovingCommands.Count - 1;
         }
     }
 
-    public void IncrementCurrentRecordedCommand()
+    public void IncrementCurrentRecordedCommand(CommandType commandType)
     {
-        currentRecordedCommand++;
+        switch(commandType)
+        {
+            case CommandType.PlayerMoving:
+                currentRecordedPlayerMovingCommand++;
+                break;
+            case CommandType.Spawning:
+                currentRecordedSpawningCommand++;
+                break;
+        }
     }
 
-    public void DecrementCurrentRecordedCommand()
+    public void DecrementCurrentRecordedCommand(CommandType commandType)
     {
-        currentRecordedCommand--;
+        switch (commandType)
+        {
+            case CommandType.PlayerMoving:
+                currentRecordedPlayerMovingCommand--;
+                break;
+            case CommandType.Spawning:
+                currentRecordedSpawningCommand--;
+                break;
+        }
     }
 
     public bool GetIsInReplayMode()

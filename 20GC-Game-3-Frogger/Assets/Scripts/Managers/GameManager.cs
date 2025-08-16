@@ -1,15 +1,24 @@
 // Game and Code By RvRproduct (Roberto Valentino Reynoso)
 using UnityEngine;
 
+public enum ReplayDirection
+{
+    Rewind = -1,
+    Pause = 0,
+    Forward = 1,
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     [SerializeField] private Player player;
     [SerializeField] private Treasure treasure;
-    private float gameTimer = 0;
+    private const int TICKS_PER_SECOND = 60;
+    private int globalTick = 0;
     [SerializeField] private int maxCountDownTimer = 80;
     private float countingCountDownSeconds = 0.0f;
     private int currentCountDown;
+    private ReplayDirection replayDirection = ReplayDirection.Forward;
 
     private void Awake()
     {
@@ -22,19 +31,47 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
         currentCountDown = maxCountDownTimer;
+
+        Time.fixedDeltaTime = 1.0f / 60.0f;
     }
 
     private void Update()
     {
-        gameTimer += Time.deltaTime;
         UpdateCountDownUI();
     }
 
-    public float GetGameTimer()
+    private void FixedUpdate()
     {
-        return gameTimer;
+        switch (replayDirection)
+        {
+            case ReplayDirection.Forward:
+                globalTick++;
+                break;
+            case ReplayDirection.Pause:
+                break;
+            case ReplayDirection.Rewind:
+                if (globalTick > 0)
+                {
+                    globalTick--;
+                }
+                break;
+        }
     }
 
+    public int GetGlobalTick()
+    {
+        return globalTick;
+    }
+
+    public void SetGlobalTick(int _globalTick)
+    {
+        globalTick = _globalTick;
+    }
+
+    public int GetTicksPerSecond()
+    {
+        return TICKS_PER_SECOND;
+    }
     public Player GetPlayer()
     {
         return player;
@@ -77,5 +114,15 @@ public class GameManager : MonoBehaviour
     public void ResetCurrentCountDown()
     {
         currentCountDown = maxCountDownTimer;
+    }
+
+    public ReplayDirection GetReplayDirection()
+    {
+        return replayDirection;
+    }
+
+    public void SetReplayDirection(ReplayDirection _replayDirection)
+    {
+        replayDirection = _replayDirection;
     }
 }

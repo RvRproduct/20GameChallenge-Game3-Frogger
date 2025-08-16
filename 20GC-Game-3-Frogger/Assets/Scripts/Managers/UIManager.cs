@@ -69,6 +69,15 @@ public class UIManager : MonoBehaviour
     {
         if (isPause)
         {
+            if (!ReplayManager.Instance.GetIsRewinding())
+            {
+                GameManager.Instance.SetReplayDirection(ReplayDirection.Forward);
+            }
+            else
+            {
+                GameManager.Instance.SetReplayDirection(ReplayDirection.Rewind);
+            }
+
             pauseButton.colors = unSelectedColorBlock;
             isPause = false;
             if (!ReplayManager.Instance.GetIsReplayPlaying())
@@ -86,6 +95,7 @@ public class UIManager : MonoBehaviour
         {
             pauseButton.colors = selectedColorBlock;
             isPause = true;
+            GameManager.Instance.SetReplayDirection(ReplayDirection.Pause);
             ReplayManager.Instance.SetIsReplayPlaying(false);
         }
     }
@@ -95,6 +105,8 @@ public class UIManager : MonoBehaviour
         ReplayManager.Instance.RestartReplay();
         EntityManager.Instance.ResetAllEntities();
         SpikeManager.Instance.ResetSpikes();
+        // resetting Global Tick
+        GameManager.Instance.SetGlobalTick(0);
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
             ReplayManager.Instance.StartReplay();
@@ -104,7 +116,6 @@ public class UIManager : MonoBehaviour
 
     public void RewindReplay()
     {
-
         if (!isRewind)
         {
             // For visual Clarity
@@ -143,6 +154,7 @@ public class UIManager : MonoBehaviour
             isForward = true;
             isRewind = false;
             rewindButton.colors = unSelectedColorBlock;
+            GameManager.Instance.SetReplayDirection(ReplayDirection.Forward);
 
             if (ReplayManager.Instance.GetIsRewinding())
             {
@@ -207,6 +219,9 @@ public class UIManager : MonoBehaviour
         ReplayManager.Instance.SetIsReplayPlaying(false);
         RestartReplay();
         ReplayManager.Instance.SetIsInReplayMode(true);
+        GameManager.Instance.SetReplayDirection(ReplayDirection.Pause);
+        // resetting Global Tick
+        GameManager.Instance.SetGlobalTick(0);
         replayMode.SetActive(true);
     }
 
