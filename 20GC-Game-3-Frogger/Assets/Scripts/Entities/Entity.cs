@@ -68,7 +68,8 @@ public class Entity : BasePoolObject
 
     private void CheckForReplayBeforeMove()
     {
-        if (ReplayManager.Instance.GetIsReplayPlaying())
+        if (ReplayManager.Instance.GetIsReplayPlaying() &&
+            !ReplayManager.Instance.GetIsAtEndReplay())
         {
             if (isGoingLeft)
             {

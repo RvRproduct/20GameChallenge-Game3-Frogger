@@ -29,7 +29,7 @@ public class SpikeManager : MonoBehaviour
     private bool activateOtherSpikeFriend = false;
 
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
@@ -51,7 +51,7 @@ public class SpikeManager : MonoBehaviour
 
     private void ActivateSpikes()
     {
-        currentTimeBetweenSpikeFriends += Time.deltaTime;
+        currentTimeBetweenSpikeFriends += Time.fixedDeltaTime;
         if (currentTimeBetweenSpikeFriends >= timeBetweenSpikeFriends)
         {
             if (!activateOtherSpikeFriend)

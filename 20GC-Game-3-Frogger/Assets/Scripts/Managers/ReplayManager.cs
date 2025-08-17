@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
-using System.Data;
 
 public enum CommandType
 {
@@ -25,6 +24,7 @@ public class ReplayManager : MonoBehaviour
     private bool isReplayPlaying = true;
     private bool isRewinding = false;
     private bool isInReplayMode = false;
+    private bool isAtEndReplay = false;
 
     private void Awake()
     {
@@ -46,14 +46,27 @@ public class ReplayManager : MonoBehaviour
 
     public IEnumerator PlayRecordedCommands(CommandType commandType)
     {
+        if (isAtEndReplay) { isAtEndReplay = false; }
 
         if (GetCurrentRecordedCommand(commandType) >= GetRecordedCommands(commandType).Count)
         {
-            SetCurrentRecordedCommand(commandType, GetRecordedCommands(commandType).Count - 1);
+            SetCurrentRecordedCommand(commandType, GetRecordedCommands(commandType).Count - 2);
+
+            if (commandType == CommandType.PlayerMoving)
+            {
+                int commandIndex = GetRecordedCommands(commandType).Count - 1;
+                GameManager.Instance.SetGlobalTick(
+                    (GetRecordedCommands(commandType))[commandIndex].endTick);
+            }
+            
         }
         else if (GetCurrentRecordedCommand(commandType) < 0)
         {
-            SetCurrentRecordedCommand(commandType, 0);
+            if (commandType == CommandType.PlayerMoving)
+            {
+                SetCurrentRecordedCommand(commandType, 0);
+                GameManager.Instance.SetGlobalTick(0);
+            }
         }
 
         // Normal
@@ -64,18 +77,18 @@ public class ReplayManager : MonoBehaviour
             if (GameManager.Instance.GetGlobalTick() >= 
                 GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].startTick)
             {
-                //Debug.Log("Playing Next Command on execute");
-                
-
                 if (!GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].finished)
                 {
-                    Debug.Log("Command on execute");
-                    Debug.Log($"Current Recorded Command {GetCurrentRecordedCommand(commandType)}");
                     GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].Execute();
                 }
             }
 
-            yield return null;
+            if (GetCurrentRecordedCommand(commandType) >= GetRecordedCommands(commandType).Count - 1)
+            {
+                isAtEndReplay = true;
+            }
+
+            yield return new WaitForFixedUpdate();
         }
 
         // Rewind
@@ -92,7 +105,12 @@ public class ReplayManager : MonoBehaviour
                 }
             }
 
-            yield return null;
+            if (GetCurrentRecordedCommand(commandType) <= 0)
+            {
+                isAtEndReplay = true;
+            }
+
+            yield return new WaitForFixedUpdate();
         }
 
     }
@@ -232,5 +250,10 @@ public class ReplayManager : MonoBehaviour
     public List<Command> GetRecordedSpawningCommands()
     {
         return recordedSpawningCommands;
+    }
+
+    public bool GetIsAtEndReplay()
+    {
+        return isAtEndReplay;
     }
 }

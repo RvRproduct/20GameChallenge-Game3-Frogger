@@ -14,7 +14,7 @@ public class Spike : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (isHater)
         {
@@ -32,7 +32,7 @@ public class Spike : MonoBehaviour
 
     private void ActivateSpike()
     {
-        currentSpikeHaterCoolDown += Time.deltaTime;
+        currentSpikeHaterCoolDown += Time.fixedDeltaTime;
 
         if (currentSpikeHaterCoolDown >= spikeHaterMaxCoolDown)
         {

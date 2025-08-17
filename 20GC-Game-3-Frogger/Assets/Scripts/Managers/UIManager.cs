@@ -102,11 +102,12 @@ public class UIManager : MonoBehaviour
 
     public void RestartReplay()
     {
+        // resetting Global Tick
+        GameManager.Instance.SetGlobalTick(0);
         ReplayManager.Instance.RestartReplay();
         EntityManager.Instance.ResetAllEntities();
         SpikeManager.Instance.ResetSpikes();
-        // resetting Global Tick
-        GameManager.Instance.SetGlobalTick(0);
+
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
             ReplayManager.Instance.StartReplay();
@@ -123,6 +124,7 @@ public class UIManager : MonoBehaviour
             isRewind = true;
             isForward = false;
             forwardButton.colors = unSelectedColorBlock;
+            GameManager.Instance.SetReplayDirection(ReplayDirection.Rewind);
 
             if (!ReplayManager.Instance.GetIsRewinding())
             {
@@ -221,13 +223,11 @@ public class UIManager : MonoBehaviour
 
     public void EnterReplayMode()
     {
+        GameManager.Instance.SetReplayDirection(ReplayDirection.Pause);
         replayModePrompt.SetActive(false);
         ReplayManager.Instance.SetIsReplayPlaying(false);
-        RestartReplay();
         ReplayManager.Instance.SetIsInReplayMode(true);
-        GameManager.Instance.SetReplayDirection(ReplayDirection.Pause);
-        // resetting Global Tick
-        GameManager.Instance.SetGlobalTick(0);
+        RestartReplay();
         replayMode.SetActive(true);
     }
 

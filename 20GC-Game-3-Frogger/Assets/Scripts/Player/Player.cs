@@ -41,9 +41,24 @@ public class Player : MonoBehaviour
     private IEnumerator PlayerMoving()
     {
         bool hitBlockReaction = false;
-        long durationTicks = (long)Mathf.Max(1, Mathf.Round(playerDuration *
+        long durationTicks = 0;
+
+        if (!ReplayManager.Instance.GetIsInReplayMode())
+        {
+            durationTicks = (long)Mathf.Max(1, Mathf.Round(playerDuration *
             GameManager.Instance.GetTicksPerSecond()));
-        moveCommand.endTick = (int)(moveCommand.startTick + durationTicks);
+        }
+        else
+        {
+            durationTicks = Mathf.Max(1, moveCommand.endTick - moveCommand.startTick);            
+        }
+
+
+        if (!ReplayManager.Instance.GetIsInReplayMode())
+        {
+            moveCommand.endTick = (int)(moveCommand.startTick + durationTicks);
+        }
+        
         bool isDoneMoving = false;
 
         while (!isDoneMoving)
@@ -51,25 +66,38 @@ public class Player : MonoBehaviour
             if (!HitBlock(transform.position, 
                 VectorConversions.ToUnity(((MoveCommand)moveCommand).GetDirection())))
             {
-                float rawMoveProgress = (GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
-                / (float)(moveCommand.endTick - moveCommand.startTick);
 
-                float moveProgress = Mathf.Clamp01(rawMoveProgress);
+                float moveProgress = 0.0f;
 
-                transform.position = Vector3.Lerp(
+                if (!ReplayManager.Instance.GetIsRewinding())
+                {
+                    moveProgress = (GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
+                        / (float)durationTicks;
+                }
+                else
+                {
+                    moveProgress = ((GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
+                        / (float)durationTicks) * - 1;
+                }
+
+                if (!ReplayManager.Instance.GetIsRewinding())
+                {
+                    transform.position = Vector3.Lerp(
                      VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
                      VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
                     moveProgress);
 
-                if (GameManager.Instance.GetReplayDirection() == ReplayDirection.Forward)
-                {
-                    if (rawMoveProgress >= 1.0f) { isDoneMoving = true; }
+                    if (moveProgress >= 1.0f) { isDoneMoving = true; }
                 }
-                else if (GameManager.Instance.GetReplayDirection() == ReplayDirection.Rewind)
+                else
                 {
-                    if (rawMoveProgress <= 0.0f) { isDoneMoving = true; }
+                    transform.position = Vector3.Lerp(
+                     VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
+                     VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
+                    moveProgress);
+                    if (moveProgress >= 1.0f) { isDoneMoving = true; }
                 }
-                yield return null;
+                yield return new WaitForFixedUpdate();
             }
             else
             {
@@ -91,32 +119,54 @@ public class Player : MonoBehaviour
 
             float moveProgress = Mathf.Clamp01(rawMoveProgress);
 
-            transform.position = Vector3.Lerp(
+            if (!ReplayManager.Instance.GetIsRewinding())
+            {
+                transform.position = Vector3.Lerp(
                 transform.position,
                 VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
                 moveProgress);
 
-            if (GameManager.Instance.GetReplayDirection() == ReplayDirection.Forward)
-            {
                 if (rawMoveProgress >= 1.0f) { isDoneMoving = true; }
             }
-            else if (GameManager.Instance.GetReplayDirection() == ReplayDirection.Rewind)
+            else
             {
+                transform.position = Vector3.Lerp(
+                transform.position,
+                VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
+                moveProgress);
+
                 if (rawMoveProgress <= 0.0f) { isDoneMoving = true; }
             }
 
-            yield return null;
+            yield return new WaitForFixedUpdate();
         }
 
-        if (hitBlockReaction)
+        if (!ReplayManager.Instance.GetIsRewinding())
         {
-            hitBlockReaction = false;
-            SetPlayerLocation(VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()));
+            if (hitBlockReaction)
+            {
+                hitBlockReaction = false;
+                SetPlayerLocation(VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()));
+            }
+            else
+            {
+                SetPlayerLocation(VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()));
+            }
         }
         else
         {
-            SetPlayerLocation(VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()));
+            if (hitBlockReaction)
+            {
+                hitBlockReaction = false;
+                SetPlayerLocation(VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()));
+                
+            }
+            else
+            {
+                SetPlayerLocation(VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()));
+            }
         }
+
         if (!isDead)
         {
             SetTriggerIdle();

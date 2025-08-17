@@ -65,7 +65,8 @@ public class EntityManager : ObjectPool
     private void FixedUpdate()
     {
         if (spawning == null &&
-            !ReplayManager.Instance.GetIsInReplayMode())
+            !ReplayManager.Instance.GetIsInReplayMode() &&
+            ReplayManager.Instance.GetIsReplayPlaying())
         {
             SpawnTimer();
         } 
@@ -144,19 +145,6 @@ public class EntityManager : ObjectPool
                     break;
             }
 
-            if (ReplayManager.Instance.GetIsReplayPlaying() &&
-                ReplayManager.Instance.GetIsInReplayMode())
-            {
-                if (!ReplayManager.Instance.GetIsRewinding())
-                {
-                    ReplayManager.Instance.IncrementCurrentRecordedCommand(CommandType.Spawning);
-                }
-                else
-                {
-                    ReplayManager.Instance.DecrementCurrentRecordedCommand(CommandType.Spawning);
-                }
-            }
-
             spawning = null;
 
             yield return null;
@@ -178,8 +166,36 @@ public class EntityManager : ObjectPool
     public void SpawnEntity(Command _spawnCommand)
     {
         GameObject validObject = GetValidObjectInPool(((SpawnerCommand)_spawnCommand).GetEntityTag());
-        validObject.transform.position = VectorConversions.ToUnity(((SpawnerCommand)_spawnCommand).GetSpawnPoint());
-        _spawnCommand.finished = false;
+
+        if (!ReplayManager.Instance.GetIsRewinding())
+        {
+            validObject.transform.position = VectorConversions.ToUnity(((SpawnerCommand)_spawnCommand).GetSpawnPoint());
+            _spawnCommand.finished = false;
+        }
+        else
+        {
+            float reflectSpawnPointXAxis = -1.0f;
+            Vector3 reflectedSpawnPoint = VectorConversions.ToUnity(((SpawnerCommand)_spawnCommand).GetSpawnPoint());
+            reflectedSpawnPoint = new Vector3(reflectedSpawnPoint.x * reflectSpawnPointXAxis,
+                reflectedSpawnPoint.y, reflectedSpawnPoint.z);
+
+
+            validObject.transform.position = reflectedSpawnPoint;
+            _spawnCommand.finished = false;
+        }
+
+        if (ReplayManager.Instance.GetIsReplayPlaying() &&
+                ReplayManager.Instance.GetIsInReplayMode())
+        {
+            if (!ReplayManager.Instance.GetIsRewinding())
+            {
+                ReplayManager.Instance.IncrementCurrentRecordedCommand(CommandType.Spawning);
+            }
+            else
+            {
+                ReplayManager.Instance.DecrementCurrentRecordedCommand(CommandType.Spawning);
+            }
+        }
     }
 
     // For Setting up the Command... Ya it could be named something else, but eh overload haha
@@ -216,12 +232,16 @@ public class EntityManager : ObjectPool
 
     public void ResetAllEntities()
     {
+        StopAllCoroutines();
         ResetSpawnTimes();
+
+        int countDestroy = 0;
 
         foreach (string poolObjectKey in objectPool.Keys)
         {
             foreach (GameObject poolObject in objectPool[poolObjectKey])
             {
+                countDestroy++;
                 poolObject.SetActive(false);
             }
         }
