@@ -167,22 +167,26 @@ public class EntityManager : ObjectPool
     {
         GameObject validObject = GetValidObjectInPool(((SpawnerCommand)_spawnCommand).GetEntityTag());
 
+        Vector3 spawnPoint = VectorConversions.ToUnity(((SpawnerCommand)_spawnCommand).GetSpawnPoint());
         if (!ReplayManager.Instance.GetIsRewinding())
         {
-            validObject.transform.position = VectorConversions.ToUnity(((SpawnerCommand)_spawnCommand).GetSpawnPoint());
+            validObject.transform.position = spawnPoint;
             _spawnCommand.finished = false;
         }
         else
         {
             float reflectSpawnPointXAxis = -1.0f;
-            Vector3 reflectedSpawnPoint = VectorConversions.ToUnity(((SpawnerCommand)_spawnCommand).GetSpawnPoint());
-            reflectedSpawnPoint = new Vector3(reflectedSpawnPoint.x * reflectSpawnPointXAxis,
-                reflectedSpawnPoint.y, reflectedSpawnPoint.z);
+            spawnPoint = new Vector3(spawnPoint.x * reflectSpawnPointXAxis,
+                spawnPoint.y, spawnPoint.z);
 
 
-            validObject.transform.position = reflectedSpawnPoint;
+            validObject.transform.position = spawnPoint;
             _spawnCommand.finished = false;
         }
+
+        // Why not... Another Manager. In such a great spot
+        EntityMovingManager.Instance.EntityMoveCommander(validObject,
+                ((SpawnerCommand)_spawnCommand).GetEntityTag(), spawnPoint);
 
         if (ReplayManager.Instance.GetIsReplayPlaying() &&
                 ReplayManager.Instance.GetIsInReplayMode())

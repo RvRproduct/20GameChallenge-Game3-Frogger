@@ -1,4 +1,5 @@
 // Game and Code By RvRproduct (Roberto Valentino Reynoso)
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public class Entity : BasePoolObject
     [SerializeField] private float speed = 8.0f;
     [SerializeField] private EntityTypes entityType;
     private SpriteRenderer spriteRenderer;
+    private Coroutine entityMoving;
+    Command entityMoveCommand = null;
 
     protected override void Awake()
     {
@@ -59,6 +62,22 @@ public class Entity : BasePoolObject
     protected override string ProvidePoolTag()
     {
         return EntitySelection();
+    }
+
+    public void MoveEntity(Command command)
+    {
+        if (entityMoving == null && gameObject.activeInHierarchy)
+        {
+            entityMoveCommand = (EntityMoveCommand)command;
+        }
+    }
+
+    private IEnumerator EntityMoving()
+    {
+        long durationTicks = 0;
+
+
+        yield return new WaitForFixedUpdate();
     }
 
     private void FixedUpdate()
