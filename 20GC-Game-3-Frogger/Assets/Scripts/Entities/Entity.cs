@@ -1,9 +1,11 @@
 // Game and Code By RvRproduct (Roberto Valentino Reynoso)
+using PoolTags;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class Entity : BasePoolObject
 {
@@ -79,9 +81,24 @@ public class Entity : BasePoolObject
     public void MoveEntity(Command command)
     {
         if (entityMoving == null && gameObject.activeInHierarchy)
-        {
+        {     
             entityMoveCommand = (EntityMoveCommand)command;
             entityMoving = StartCoroutine(EntityMoving());
+
+            // This Makes sure that we Set the correct spawn Entity Index whenever we rewind
+            // or go forward
+            if (ReplayManager.Instance.GetIsInReplayMode() &&
+                ReplayManager.Instance.GetIsReplayPlaying())
+            {
+                if (!ReplayManager.Instance.GetIsRewinding())
+                {
+                    ReplayManager.Instance.IncrementCurrentRecordedSpawnedEntity(GetEntityType());
+                }
+                else
+                {
+                    ReplayManager.Instance.DecrementCurrentRecordedSpawnedEntity(GetEntityType());
+                }
+            }
         }
     }
 
@@ -188,6 +205,8 @@ public class Entity : BasePoolObject
         }
 
         entityMoving = null;
+        // Conditions inside only for replay mode
+        PlayNextEntityCommand();
     }
 
     private void SetEntityPosition(Vector2 _startPosition, Vector2 _endPosition)
@@ -274,6 +293,44 @@ public class Entity : BasePoolObject
     public bool GetHasReachedDestination()
     {
         return hasReachedDestination;
+    }
+
+    private void PlayNextEntityCommand()
+    {
+        if (ReplayManager.Instance.GetIsInReplayMode() &&
+            ReplayManager.Instance.GetIsReplayPlaying())
+        {
+            if (!ReplayManager.Instance.GetIsRewinding())
+            {
+                if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.EntityMoving,
+                    entityType, true, entityIndex) <
+                    ReplayManager.Instance.GetRecordedCommands(CommandType.EntityMoving, poolTag,
+                    entityType, true, entityIndex).Count)
+                {
+                    ReplayManager.Instance.IncrementCurrentRecordedCommand(CommandType.EntityMoving,
+                        entityType, true, entityIndex);
+
+                    ReplayManager.Instance.GetRecordedCommands(CommandType.EntityMoving, poolTag,
+                    entityType, true, entityIndex)[ReplayManager.Instance.GetCurrentRecordedCommand(
+                        CommandType.EntityMoving, entityType, true, entityIndex)].Execute();
+                    
+                }
+            }
+            else
+            {
+                if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.EntityMoving,
+                    entityType, true, entityIndex) >= 0)
+                {
+                    ReplayManager.Instance.DecrementCurrentRecordedCommand(CommandType.EntityMoving,
+                        entityType, true, entityIndex);
+
+                    ReplayManager.Instance.GetRecordedCommands(CommandType.EntityMoving, poolTag,
+                    entityType, true, entityIndex)[ReplayManager.Instance.GetCurrentRecordedCommand(
+                        CommandType.EntityMoving, entityType, true, entityIndex)].Execute();
+                }
+            }
+            
+        } 
     }
 
     public void CleanUpEntity()

@@ -196,9 +196,28 @@ public class EntityManager : ObjectPool
         }
         else
         {
-            Entity entity = validObject.GetComponent<Entity>();
-            EntityMovingManager.Instance.StartReplayFromEntityManager(entity.poolTag,
-                entity.GetEntityType());
+            if (ReplayManager.Instance.GetIsReplayPlaying())
+            {
+                Entity entity = validObject.GetComponent<Entity>();
+                // Hack to make sure that the entity moving command has a valid Entity
+                // Object to move in the world, it must be swapped in and out, since
+                // we have a pooling system
+
+                // Giving a the spawned entity the correct index so that they have control of when they need
+                // to execute their commands (This is fine here probably)
+                entity.SetEntityIndex(ReplayManager.Instance.GetCurrentRecordedSpawnedEntity(entity.GetEntityType()));
+
+
+                EntityMoveCommand currentEntityMoveCommand = (EntityMoveCommand)ReplayManager.Instance.
+                    GetRecordedCommands(CommandType.EntityMoving, entity.poolTag,
+                    entity.GetEntityType(), true, entity.GetEntityIndex())[ReplayManager.Instance.GetCurrentRecordedCommand(
+                        CommandType.EntityMoving, entity.GetEntityType(), true, entity.GetEntityIndex())];
+
+                currentEntityMoveCommand.SetEntity(entity);
+
+                EntityMovingManager.Instance.StartReplayFromEntityManager(entity.poolTag,
+                    entity.GetEntityType());
+            }
         }
 
 

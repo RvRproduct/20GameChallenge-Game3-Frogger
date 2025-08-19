@@ -227,6 +227,7 @@ public class UIManager : MonoBehaviour
         replayModePrompt.SetActive(false);
         ReplayManager.Instance.SetIsReplayPlaying(false);
         ReplayManager.Instance.SetIsInReplayMode(true);
+        ReplayManager.Instance.RefreshCurrentRecordedSpawnedEntity();
         RestartReplay();
         replayMode.SetActive(true);
     }

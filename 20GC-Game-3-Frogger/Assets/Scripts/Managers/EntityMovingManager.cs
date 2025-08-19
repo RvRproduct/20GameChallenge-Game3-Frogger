@@ -8,6 +8,7 @@ public class EntityMovingManager : MonoBehaviour
     static public EntityMovingManager Instance;
 
     private Dictionary<string, List<int>> entitiesIndex = new Dictionary<string, List<int>>();
+    private Dictionary<EntityTypes, Coroutine> entityCoroutines = new Dictionary<EntityTypes, Coroutine>();
 
     private void Awake()
     {
@@ -19,14 +20,65 @@ public class EntityMovingManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        entityCoroutines.Add(EntityTypes.Bat, null);
+        entityCoroutines.Add(EntityTypes.Skeleton, null);
+        entityCoroutines.Add(EntityTypes.SlimeB, null);
+        entityCoroutines.Add(EntityTypes.SlimeG, null);
+        entityCoroutines.Add(EntityTypes.SlimeR, null);
     }
 
     public void StartReplayFromEntityManager(string _entityTag,
         EntityTypes _entityType)
     {
+        switch (_entityType)
+        {
+            case EntityTypes.Bat:
+                if (entityCoroutines[EntityTypes.Bat] == null)
+                {
+                    entityCoroutines[EntityTypes.Bat] = 
+                        StartCoroutine(ReplayManager.Instance.PlayRecordedCommands(CommandType.EntityMoving,
+                        _entityTag, _entityType));
+                }
+                break;
+            case EntityTypes.Skeleton:
+                if (entityCoroutines[EntityTypes.Skeleton] == null)
+                {
+                    entityCoroutines[EntityTypes.Skeleton] =
+                        StartCoroutine(ReplayManager.Instance.PlayRecordedCommands(CommandType.EntityMoving,
+                        _entityTag, _entityType));
+                }
+                break;
+            case EntityTypes.SlimeB:
+                if (entityCoroutines[EntityTypes.SlimeB] == null)
+                {
+                    entityCoroutines[EntityTypes.SlimeB] =
+                        StartCoroutine(ReplayManager.Instance.PlayRecordedCommands(CommandType.EntityMoving,
+                        _entityTag, _entityType));
+                }
+                break;
+            case EntityTypes.SlimeG:
+                if (entityCoroutines[EntityTypes.SlimeG] == null)
+                {
+                    entityCoroutines[EntityTypes.SlimeG] =
+                        StartCoroutine(ReplayManager.Instance.PlayRecordedCommands(CommandType.EntityMoving,
+                        _entityTag, _entityType));
+                }
+                break;
+            case EntityTypes.SlimeR:
+                if (entityCoroutines[EntityTypes.SlimeR] == null)
+                {
+                    entityCoroutines[EntityTypes.SlimeR] =
+                        StartCoroutine(ReplayManager.Instance.PlayRecordedCommands(CommandType.EntityMoving,
+                        _entityTag, _entityType));
+                }
+                break;
+        }
+    }
+
+    public void RefreshReplayFromEntityManager()
+    {
         StopAllCoroutines();
-        ReplayManager.Instance.PlayRecordedCommands(CommandType.EntityMoving,
-                    _entityTag, _entityType);
     }
 
     // I dont like this
@@ -49,15 +101,6 @@ public class EntityMovingManager : MonoBehaviour
             StartCoroutine(MovingEntity(_entity, _entityTag,
                 entityType, _spawnPoint, currentEntityIndex));
         }
-        else
-        {
-            int currentEntityIndex = ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.EntityMoving,
-                entityType);
-
-            StartCoroutine(MovingEntity(_entity, _entityTag,
-                entityType, _spawnPoint, currentEntityIndex));
-        }
-        
     }
 
     private IEnumerator MoveEntity(Entity entity, string _entityTag,
@@ -74,10 +117,6 @@ public class EntityMovingManager : MonoBehaviour
                        entityCommand, _currentEntityIndex);
 
                 entityCommand.Execute();
-            }
-            else
-            {
-
             }
             
             yield return new WaitUntil(() => entity.GetEntityMoving() == null);

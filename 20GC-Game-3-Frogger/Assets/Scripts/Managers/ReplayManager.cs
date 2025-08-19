@@ -20,6 +20,7 @@ public class ReplayManager : MonoBehaviour
     private int currentRecordedSpawningCommand = 0;
     private Dictionary<EntityTypes ,List<int>> 
         currentRecordedEntityCommand = new Dictionary<EntityTypes ,List<int>>();
+    private Dictionary<EntityTypes, int> currentRecordedSpawnedEntity = new Dictionary<EntityTypes ,int>();
     private List<Command> recordedPlayerMovingCommands = new List<Command>();
     private List<Command> recordedSpawningCommands = new List<Command>();
     private Dictionary<string, List<List<Command>>> 
@@ -139,8 +140,92 @@ public class ReplayManager : MonoBehaviour
 
     }
 
-    private List<Command> GetRecordedCommands(CommandType commandType,
-        string entityTag = "", EntityTypes entityType = EntityTypes.None)
+    public void PlayRecordedEntityCommands(CommandType commandType,
+        int entityIndex, string entityTag, EntityTypes entityType)
+    {
+        if (!GetRecordedCommands(commandType, entityTag, entityType, true, entityIndex)
+            [GetCurrentRecordedCommand(commandType, entityType, true, entityIndex)].finished)
+        {
+            GetRecordedCommands(commandType, entityTag, entityType, true, entityIndex)
+                [GetCurrentRecordedCommand(commandType, entityType, true, entityIndex)].Execute();
+        }
+    }
+
+    public void RefreshCurrentRecordedSpawnedEntity()
+    {
+        currentRecordedSpawnedEntity.Add(EntityTypes.Bat, 0);
+        currentRecordedSpawnedEntity.Add(EntityTypes.Skeleton, 0);
+        currentRecordedSpawnedEntity.Add(EntityTypes.SlimeB, 0);
+        currentRecordedSpawnedEntity.Add(EntityTypes.SlimeG, 0);
+        currentRecordedSpawnedEntity.Add(EntityTypes.SlimeR, 0);
+    }
+
+    public void IncrementCurrentRecordedSpawnedEntity(EntityTypes entityType)
+    {
+        switch (entityType)
+        {
+            case EntityTypes.Bat:
+                currentRecordedSpawnedEntity[EntityTypes.Bat]++;
+                break;
+            case EntityTypes.Skeleton:
+                currentRecordedSpawnedEntity[EntityTypes.Skeleton]++;
+                break;
+            case EntityTypes.SlimeB:
+                currentRecordedSpawnedEntity[EntityTypes.SlimeB]++;
+                break;
+            case EntityTypes.SlimeG:
+                currentRecordedSpawnedEntity[EntityTypes.SlimeG]++;
+                break;
+            case EntityTypes.SlimeR:
+                currentRecordedSpawnedEntity[EntityTypes.SlimeR]++;
+                break;
+        }
+    }
+    public void DecrementCurrentRecordedSpawnedEntity(EntityTypes entityType)
+    {
+        switch (entityType)
+        {
+            case EntityTypes.Bat:
+                currentRecordedSpawnedEntity[EntityTypes.Bat]--;
+                break;
+            case EntityTypes.Skeleton:
+                currentRecordedSpawnedEntity[EntityTypes.Skeleton]--;
+                break;
+            case EntityTypes.SlimeB:
+                currentRecordedSpawnedEntity[EntityTypes.SlimeB]--;
+                break;
+            case EntityTypes.SlimeG:
+                currentRecordedSpawnedEntity[EntityTypes.SlimeG]--;
+                break;
+            case EntityTypes.SlimeR:
+                currentRecordedSpawnedEntity[EntityTypes.SlimeR]--;
+                break;
+        }
+    }
+
+    public int GetCurrentRecordedSpawnedEntity(EntityTypes entityType)
+    {
+        switch (entityType)
+        {
+            case EntityTypes.Bat:
+                return currentRecordedSpawnedEntity[EntityTypes.Bat];
+            case EntityTypes.Skeleton:
+                return currentRecordedSpawnedEntity[EntityTypes.Skeleton];
+            case EntityTypes.SlimeB:
+                return currentRecordedSpawnedEntity[EntityTypes.SlimeB];
+            case EntityTypes.SlimeG:
+                return currentRecordedSpawnedEntity[EntityTypes.SlimeG];
+            case EntityTypes.SlimeR:
+                return currentRecordedSpawnedEntity[EntityTypes.SlimeR];
+        }
+
+        return -1;
+    }
+
+
+    public List<Command> GetRecordedCommands(CommandType commandType,
+        string entityTag = "", EntityTypes entityType = EntityTypes.None,
+        bool isEntityGrab = false, int entityIndex = -1)
     {
         switch (commandType)
         {
@@ -149,15 +234,28 @@ public class ReplayManager : MonoBehaviour
             case CommandType.Spawning:
                 return recordedSpawningCommands;
             case CommandType.EntityMoving:
-                return recordedEntityCommands[entityTag]
-                    [currentRecordedEntityCommand[entityType]];
+
+                if (!isEntityGrab)
+                {
+                    return recordedEntityCommands[entityTag]
+                    [currentRecordedEntityCommand[entityType]
+                    [currentRecordedSpawnedEntity[entityType]]];
+                }
+                else
+                {
+                    return recordedEntityCommands[entityTag]
+                    [currentRecordedEntityCommand[entityType]
+                    [entityIndex]];
+                }
+
             default:
                 return null;
         }
     }
 
-    public int GetCurrentRecordedCommand(CommandType commandType, 
-        EntityTypes entityType = EntityTypes.None)
+    public int GetCurrentRecordedCommand(CommandType commandType,
+        EntityTypes entityType = EntityTypes.None,
+        bool isEntityGrab = false, int entityIndex = -1)
     {
         switch (commandType)
         {
@@ -166,14 +264,25 @@ public class ReplayManager : MonoBehaviour
             case CommandType.Spawning:
                 return currentRecordedSpawningCommand;
             case CommandType.EntityMoving:
-                return currentRecordedEntityCommand[entityType];
+                if (!isEntityGrab)
+                {
+                    return currentRecordedEntityCommand[entityType]
+                        [currentRecordedSpawnedEntity[entityType]];
+                }
+                else
+                {
+                    return currentRecordedEntityCommand[entityType]
+                        [entityIndex];
+                }
+
             default:
                 return 0;
         }
     }
 
-    public void SetCurrentRecordedCommand(CommandType commandType ,int _currentCommand,
-        EntityTypes entityType = EntityTypes.None)
+    public void SetCurrentRecordedCommand(CommandType commandType, int _currentCommand,
+        EntityTypes entityType = EntityTypes.None, bool isEntityGrab = false,
+        int entityIndex = -1)
     {
         switch (commandType)
         {
@@ -184,7 +293,16 @@ public class ReplayManager : MonoBehaviour
                 currentRecordedSpawningCommand = _currentCommand;
                 break;
             case CommandType.EntityMoving:
-                currentRecordedEntityCommand[entityType] = _currentCommand;
+                if (!isEntityGrab)
+                {
+                    currentRecordedEntityCommand[entityType]
+                        [currentRecordedSpawnedEntity[entityType]] = _currentCommand;
+                }
+                else
+                {
+                    currentRecordedEntityCommand[entityType]
+                        [entityIndex] = _currentCommand;
+                }
                 break;
         }
     }
@@ -267,7 +385,8 @@ public class ReplayManager : MonoBehaviour
     }
 
     public void IncrementCurrentRecordedCommand(CommandType commandType,
-        EntityTypes entityType = EntityTypes.None)
+        EntityTypes entityType = EntityTypes.None, bool isEntityGrab = false,
+        int entityIndex = -1)
     {
         switch(commandType)
         {
@@ -278,13 +397,23 @@ public class ReplayManager : MonoBehaviour
                 currentRecordedSpawningCommand++;
                 break;
             case CommandType.EntityMoving:
-                currentRecordedEntityCommand[entityType]++;
+                if (!isEntityGrab)
+                {
+                    currentRecordedEntityCommand[entityType]
+                        [currentRecordedSpawnedEntity[entityType]]++;
+                }
+                else
+                {
+                    currentRecordedEntityCommand[entityType]
+                        [entityIndex]++;
+                }
                 break;
         }
     }
 
     public void DecrementCurrentRecordedCommand(CommandType commandType,
-        EntityTypes entityType = EntityTypes.None)
+        EntityTypes entityType = EntityTypes.None, bool isEntityGrab = false,
+        int entityIndex = -1)
     {
         switch (commandType)
         {
@@ -295,7 +424,17 @@ public class ReplayManager : MonoBehaviour
                 currentRecordedSpawningCommand--;
                 break;
             case CommandType.EntityMoving:
-                currentRecordedEntityCommand[entityType]--;
+                if (!isEntityGrab)
+                {
+                    currentRecordedEntityCommand[entityType]
+                        [currentRecordedSpawnedEntity[entityType]]--;
+                }
+                else
+                {
+                    currentRecordedEntityCommand[entityType]
+                        [entityIndex]--;
+                }
+                
                 break;
         }
     }

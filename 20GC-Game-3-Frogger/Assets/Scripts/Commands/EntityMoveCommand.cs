@@ -41,4 +41,9 @@ public class EntityMoveCommand : Command
     {
         return entityTag;
     }
+
+    public void SetEntity(Entity _entity)
+    {
+        entity = _entity;
+    }
 }
