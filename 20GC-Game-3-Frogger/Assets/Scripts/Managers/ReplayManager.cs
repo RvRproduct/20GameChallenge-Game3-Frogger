@@ -18,8 +18,12 @@ public class ReplayManager : MonoBehaviour
     // For Commands
     private int currentRecordedPlayerMovingCommand = 0;
     private int currentRecordedSpawningCommand = 0;
+    private Dictionary<EntityTypes ,List<int>> 
+        currentRecordedEntityCommand = new Dictionary<EntityTypes ,List<int>>();
     private List<Command> recordedPlayerMovingCommands = new List<Command>();
     private List<Command> recordedSpawningCommands = new List<Command>();
+    private Dictionary<string, List<List<Command>>> 
+        recordedEntityCommands = new Dictionary<string, List<List<Command>>>();
     // End of For Commands
     private bool isReplayPlaying = true;
     private bool isRewinding = false;
@@ -44,46 +48,63 @@ public class ReplayManager : MonoBehaviour
         StartCoroutine(PlayRecordedCommands(CommandType.PlayerMoving));
     }
 
-    public IEnumerator PlayRecordedCommands(CommandType commandType)
+    public IEnumerator PlayRecordedCommands(CommandType commandType,
+        string entityTag = "", EntityTypes entityType = EntityTypes.None)
     {
         if (isAtEndReplay) { isAtEndReplay = false; }
 
-        if (GetCurrentRecordedCommand(commandType) >= GetRecordedCommands(commandType).Count)
-        {
-            SetCurrentRecordedCommand(commandType, GetRecordedCommands(commandType).Count - 2);
 
+        if (GetCurrentRecordedCommand(commandType, entityType) >= 
+            GetRecordedCommands(commandType, entityTag, entityType).Count)
+        {
+
+            /// hmmmmmm
             if (commandType == CommandType.PlayerMoving)
             {
                 int commandIndex = GetRecordedCommands(commandType).Count - 1;
                 GameManager.Instance.SetGlobalTick(
                     (GetRecordedCommands(commandType))[commandIndex].endTick);
             }
+            else
+            {
+                SetCurrentRecordedCommand(commandType, GetRecordedCommands(commandType,
+                entityTag, entityType).Count - 2, entityType);
+            }
             
         }
-        else if (GetCurrentRecordedCommand(commandType) < 0)
+        else if (GetCurrentRecordedCommand(commandType, entityType) < 0)
         {
+            
             if (commandType == CommandType.PlayerMoving)
             {
                 SetCurrentRecordedCommand(commandType, 0);
                 GameManager.Instance.SetGlobalTick(0);
             }
+            else
+            {
+                SetCurrentRecordedCommand(commandType, 0, entityType);
+            }
         }
 
         // Normal
         while (isReplayPlaying &&
-            GetCurrentRecordedCommand(commandType) <= GetRecordedCommands(commandType).Count - 1 &&
+            GetCurrentRecordedCommand(commandType, entityType) <= GetRecordedCommands(commandType, entityTag, entityType).Count - 1 &&
             !isRewinding)
         {
             if (GameManager.Instance.GetGlobalTick() >= 
-                GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].startTick)
+                GetRecordedCommands(commandType, entityTag, entityType)[GetCurrentRecordedCommand
+                (commandType, entityType)].startTick)
             {
-                if (!GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].finished)
+                if (!GetRecordedCommands(commandType, entityTag, entityType)[GetCurrentRecordedCommand(
+                    commandType, entityType)].finished)
                 {
-                    GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].Execute();
+                    GetRecordedCommands(commandType, entityTag, entityType)[GetCurrentRecordedCommand(
+                        commandType, entityType)].Execute();
                 }
             }
 
-            if (GetCurrentRecordedCommand(commandType) >= GetRecordedCommands(commandType).Count - 1)
+            if (GetCurrentRecordedCommand(commandType, entityType) >= GetRecordedCommands(
+                commandType, entityTag, entityType).Count - 1)
             {
                 isAtEndReplay = true;
             }
@@ -93,19 +114,22 @@ public class ReplayManager : MonoBehaviour
 
         // Rewind
         while (isReplayPlaying &&
-            GetCurrentRecordedCommand(commandType) >= 0 &&
+            GetCurrentRecordedCommand(commandType, entityType) >= 0 &&
             isRewinding)
         {
             if (GameManager.Instance.GetGlobalTick() <= 
-                GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].startTick)
+                GetRecordedCommands(commandType, entityTag, entityType)[GetCurrentRecordedCommand(
+                    commandType, entityType)].startTick)
             {
-                if (!GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].finished)
+                if (!GetRecordedCommands(commandType, entityTag, entityType)[GetCurrentRecordedCommand(
+                    commandType, entityType)].finished)
                 {
-                    GetRecordedCommands(commandType)[GetCurrentRecordedCommand(commandType)].Execute();
+                    GetRecordedCommands(commandType, entityTag, entityType)[GetCurrentRecordedCommand(
+                        commandType, entityType)].Execute();
                 }
             }
 
-            if (GetCurrentRecordedCommand(commandType) <= 0)
+            if (GetCurrentRecordedCommand(commandType, entityType) <= 0)
             {
                 isAtEndReplay = true;
             }
@@ -115,7 +139,8 @@ public class ReplayManager : MonoBehaviour
 
     }
 
-    private List<Command> GetRecordedCommands(CommandType commandType)
+    private List<Command> GetRecordedCommands(CommandType commandType,
+        string entityTag = "", EntityTypes entityType = EntityTypes.None)
     {
         switch (commandType)
         {
@@ -123,12 +148,16 @@ public class ReplayManager : MonoBehaviour
                 return recordedPlayerMovingCommands;
             case CommandType.Spawning:
                 return recordedSpawningCommands;
+            case CommandType.EntityMoving:
+                return recordedEntityCommands[entityTag]
+                    [currentRecordedEntityCommand[entityType]];
             default:
                 return null;
         }
     }
 
-    public int GetCurrentRecordedCommand(CommandType commandType)
+    public int GetCurrentRecordedCommand(CommandType commandType, 
+        EntityTypes entityType = EntityTypes.None)
     {
         switch (commandType)
         {
@@ -136,12 +165,15 @@ public class ReplayManager : MonoBehaviour
                 return currentRecordedPlayerMovingCommand;
             case CommandType.Spawning:
                 return currentRecordedSpawningCommand;
+            case CommandType.EntityMoving:
+                return currentRecordedEntityCommand[entityType];
             default:
                 return 0;
         }
     }
 
-    public void SetCurrentRecordedCommand(CommandType commandType ,int _currentCommand)
+    public void SetCurrentRecordedCommand(CommandType commandType ,int _currentCommand,
+        EntityTypes entityType = EntityTypes.None)
     {
         switch (commandType)
         {
@@ -150,6 +182,9 @@ public class ReplayManager : MonoBehaviour
                 break;
             case CommandType.Spawning:
                 currentRecordedSpawningCommand = _currentCommand;
+                break;
+            case CommandType.EntityMoving:
+                currentRecordedEntityCommand[entityType] = _currentCommand;
                 break;
         }
     }
@@ -174,7 +209,8 @@ public class ReplayManager : MonoBehaviour
         isRewinding = _isRewinding;
     }
 
-    public void AddRecordedCommand(CommandType commandType, Command _command)
+    public void AddRecordedCommand(CommandType commandType, Command _command, 
+        int _entityIndex = 0)
     {
         switch (commandType)
         {
@@ -184,6 +220,25 @@ public class ReplayManager : MonoBehaviour
             case CommandType.Spawning:
                 recordedSpawningCommands.Add(_command);
                 break;
+            case CommandType.EntityMoving:
+                string entityTag = ((EntityMoveCommand)_command).GetEntityTag();
+
+                if (!recordedEntityCommands.ContainsKey(entityTag))
+                {
+                    recordedEntityCommands.Add(entityTag, new List<List<Command>>());
+                }
+
+                if (_entityIndex >= 0 && _entityIndex < recordedEntityCommands[entityTag].Count)
+                {
+                    recordedEntityCommands[entityTag][_entityIndex].Add(_command);
+                }
+                else
+                {
+                    recordedEntityCommands[entityTag].Add(new List<Command>());
+                    recordedEntityCommands[entityTag][_entityIndex].Add(_command);
+                }
+                
+                break;                
         }
     }
 
@@ -211,7 +266,8 @@ public class ReplayManager : MonoBehaviour
         }
     }
 
-    public void IncrementCurrentRecordedCommand(CommandType commandType)
+    public void IncrementCurrentRecordedCommand(CommandType commandType,
+        EntityTypes entityType = EntityTypes.None)
     {
         switch(commandType)
         {
@@ -221,10 +277,14 @@ public class ReplayManager : MonoBehaviour
             case CommandType.Spawning:
                 currentRecordedSpawningCommand++;
                 break;
+            case CommandType.EntityMoving:
+                currentRecordedEntityCommand[entityType]++;
+                break;
         }
     }
 
-    public void DecrementCurrentRecordedCommand(CommandType commandType)
+    public void DecrementCurrentRecordedCommand(CommandType commandType,
+        EntityTypes entityType = EntityTypes.None)
     {
         switch (commandType)
         {
@@ -233,6 +293,9 @@ public class ReplayManager : MonoBehaviour
                 break;
             case CommandType.Spawning:
                 currentRecordedSpawningCommand--;
+                break;
+            case CommandType.EntityMoving:
+                currentRecordedEntityCommand[entityType]--;
                 break;
         }
     }

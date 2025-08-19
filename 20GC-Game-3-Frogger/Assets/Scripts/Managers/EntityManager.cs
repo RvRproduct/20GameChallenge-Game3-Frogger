@@ -5,6 +5,7 @@ using UnityEngine;
 
 public enum EntityTypes
 {
+    None,
     Bat,
     Skeleton,
     SlimeB,
@@ -168,6 +169,7 @@ public class EntityManager : ObjectPool
         GameObject validObject = GetValidObjectInPool(((SpawnerCommand)_spawnCommand).GetEntityTag());
 
         Vector3 spawnPoint = VectorConversions.ToUnity(((SpawnerCommand)_spawnCommand).GetSpawnPoint());
+
         if (!ReplayManager.Instance.GetIsRewinding())
         {
             validObject.transform.position = spawnPoint;
@@ -184,9 +186,21 @@ public class EntityManager : ObjectPool
             _spawnCommand.finished = false;
         }
 
-        // Why not... Another Manager. In such a great spot
-        EntityMovingManager.Instance.EntityMoveCommander(validObject,
-                ((SpawnerCommand)_spawnCommand).GetEntityTag(), spawnPoint);
+        if (!ReplayManager.Instance.GetIsInReplayMode())
+        {
+            // eh
+            Entity entity = validObject.GetComponent<Entity>();
+            // Why not... Another Manager. In such a great spot
+            EntityMovingManager.Instance.EntityMoveCommander(entity,
+                    ((SpawnerCommand)_spawnCommand).GetEntityTag(), spawnPoint);
+        }
+        else
+        {
+            Entity entity = validObject.GetComponent<Entity>();
+            EntityMovingManager.Instance.StartReplayFromEntityManager(entity.poolTag,
+                entity.GetEntityType());
+        }
+
 
         if (ReplayManager.Instance.GetIsReplayPlaying() &&
                 ReplayManager.Instance.GetIsInReplayMode())

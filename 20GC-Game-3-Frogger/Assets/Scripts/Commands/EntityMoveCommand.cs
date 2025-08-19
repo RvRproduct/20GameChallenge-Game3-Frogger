@@ -5,25 +5,25 @@ using System.Numerics;
 public class EntityMoveCommand : Command
 {
     public EntityMoveCommand(Entity _entity,
-        EntityTags _entityTag, Vector2 _startPosition, Vector2 _endPosition,
-        int _startTick, int _endTick, bool _finished) 
+        string _entityTag, Vector2 _startPosition, Vector2 _endPosition,
+        int _startTick, bool _finished) 
     {
         entity = _entity;
         entityTag = _entityTag;
         startPosition = _startPosition;
         endPosition = _endPosition;
         startTick = _startTick;
-        endTick = _endTick;
         finished = _finished;
 
     }
     public override void Execute()
     {
         finished = true;
+        entity.MoveEntity(this);
     }
 
     private Entity entity;
-    private EntityTags entityTag;
+    private string entityTag;
     private Vector2 startPosition;
     private Vector2 endPosition;
 
@@ -35,5 +35,10 @@ public class EntityMoveCommand : Command
     public Vector2 GetEndPosition()
     {
         return endPosition;
+    }
+
+    public string GetEntityTag()
+    {
+        return entityTag;
     }
 }

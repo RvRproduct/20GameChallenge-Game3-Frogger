@@ -104,8 +104,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGoingLeft: 1
-  speed: 3
-  entityType: 0
+  entitySpeed: 10
+  entityType: 1
 --- !u!50 &3556659954569563904
 Rigidbody2D:
   serializedVersion: 5

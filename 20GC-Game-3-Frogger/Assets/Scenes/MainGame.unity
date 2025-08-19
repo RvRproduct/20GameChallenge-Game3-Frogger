@@ -9486,23 +9486,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[0].MAXPOOLSIZE
-      value: 40
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[1].MAXPOOLSIZE
-      value: 12
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[2].MAXPOOLSIZE
-      value: 30
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[3].MAXPOOLSIZE
-      value: 30
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[4].MAXPOOLSIZE
-      value: 20
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: objectPoolPairs.Array.data[5].MAXPOOLSIZE
@@ -9549,12 +9549,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7566722266937026749, guid: 4946756b96b18284c8be1cef3fbeb557, type: 3}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
-      propertyPath: entityLocationPlacements.Array.data[1].entityType
+      propertyPath: entityLocationPlacements.Array.data[0].entityType
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
-      propertyPath: entityLocationPlacements.Array.data[2].entityType
+      propertyPath: entityLocationPlacements.Array.data[1].entityType
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
+      propertyPath: entityLocationPlacements.Array.data[2].entityType
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[3].entityType
@@ -9562,7 +9566,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[4].entityType
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[5].entityType
@@ -9590,7 +9594,7 @@ PrefabInstance:
       objectReference: {fileID: 7012464010599204155}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[1].maxSpawnRateTime
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[2].entitySpawnPoint
@@ -9606,7 +9610,7 @@ PrefabInstance:
       objectReference: {fileID: 157475036526630570}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[3].maxSpawnRateTime
-      value: 1.5
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[4].entitySpawnPoint
@@ -9614,7 +9618,7 @@ PrefabInstance:
       objectReference: {fileID: 8104275320023214486}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[4].maxSpawnRateTime
-      value: 0.75
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: entityLocationPlacements.Array.data[5].entitySpawnPoint
@@ -9675,19 +9679,19 @@ PrefabInstance:
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: 'entityLocationPlacements.Array.data[3].entitySpawnPoint.Array.data[0]'
       value: 
-      objectReference: {fileID: 8104275320023214486}
+      objectReference: {fileID: 157475036526630570}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: 'entityLocationPlacements.Array.data[3].entitySpawnPoint.Array.data[1]'
       value: 
-      objectReference: {fileID: 1553849599}
+      objectReference: {fileID: 45046863}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: 'entityLocationPlacements.Array.data[4].entitySpawnPoint.Array.data[0]'
       value: 
-      objectReference: {fileID: 157475036526630570}
+      objectReference: {fileID: 8104275320023214486}
     - target: {fileID: 8400026581405002699, guid: c34050da19291e94cb47cf2fcee0d4e0, type: 3}
       propertyPath: 'entityLocationPlacements.Array.data[4].entitySpawnPoint.Array.data[1]'
       value: 
-      objectReference: {fileID: 45046863}
+      objectReference: {fileID: 1553849599}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
