@@ -2,10 +2,7 @@
 using PoolTags;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class Entity : BasePoolObject
 {
@@ -18,10 +15,6 @@ public class Entity : BasePoolObject
     // For Commands
     private Command entityMoveCommand = null;
     private int entityIndex = -1;
-    // This is connected with some HardCoding
-    // The Movement Splits 
-    private int maxMovementSplits = 12;
-    private int movementSplits = 2;
     private bool isDoneMoving = false;
     private bool hasReachedDestination = false;
 
@@ -42,8 +35,6 @@ public class Entity : BasePoolObject
             }
 
         }
-
-        movementSplits = maxMovementSplits;
     }
 
     protected override string ProvidePoolReturnTag()
@@ -80,25 +71,20 @@ public class Entity : BasePoolObject
 
     public void MoveEntity(Command command)
     {
-        if (entityMoving == null && gameObject.activeInHierarchy)
-        {     
-            entityMoveCommand = (EntityMoveCommand)command;
-            entityMoving = StartCoroutine(EntityMoving());
 
-            // This Makes sure that we Set the correct spawn Entity Index whenever we rewind
-            // or go forward
-            if (ReplayManager.Instance.GetIsInReplayMode() &&
-                ReplayManager.Instance.GetIsReplayPlaying())
+        if (ReplayManager.Instance.GetIsInReplayMode())
+        {
+            if (entityMoving != null)
             {
-                if (!ReplayManager.Instance.GetIsRewinding())
-                {
-                    ReplayManager.Instance.IncrementCurrentRecordedSpawnedEntity(GetEntityType());
-                }
-                else
-                {
-                    ReplayManager.Instance.DecrementCurrentRecordedSpawnedEntity(GetEntityType());
-                }
+                Debug.Log("NOT NULL");
             }
+        }
+        
+
+        if (entityMoving == null && gameObject.activeInHierarchy)
+        {
+            entityMoveCommand = (EntityMoveCommand)command;
+            entityMoving = StartCoroutine(EntityMoving());  
         }
     }
 
@@ -106,6 +92,7 @@ public class Entity : BasePoolObject
     {
         long durationTicks = 0;
         isDoneMoving = false;
+        hasReachedDestination = false;
 
         if (!ReplayManager.Instance.GetIsInReplayMode())
         {
@@ -127,23 +114,6 @@ public class Entity : BasePoolObject
             entityMoveCommand.endTick = (int)(entityMoveCommand.startTick + durationTicks);
         }
 
-        movementSplits = maxMovementSplits - 2;
-
-        float startT = movementSplits / (float)maxMovementSplits;
-        float endT = (movementSplits + 1) / (float)maxMovementSplits;
-
-        Vector2 startPosition = Vector2.Lerp(VectorConversions.ToUnity
-                (((EntityMoveCommand)entityMoveCommand).GetEndPosition()),
-                VectorConversions.ToUnity
-                (((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
-                startT);
-
-        Vector2 endPosition = Vector2.Lerp(VectorConversions.ToUnity
-                (((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
-                VectorConversions.ToUnity
-                (((EntityMoveCommand)entityMoveCommand).GetEndPosition()),
-                endT);
-
         while (!isDoneMoving)
         {
             float moveProgress = 0.0f;
@@ -164,49 +134,27 @@ public class Entity : BasePoolObject
             if (!ReplayManager.Instance.GetIsRewinding())
             {
                 transform.position = Vector3.Lerp(
-                 startPosition, endPosition, moveProgress);
+                 VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
+                 VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition()), 
+                 moveProgress);
 
-                if (moveProgress >= 1.0f) { isDoneMoving = true; }
+                if (moveProgress >= 1.0f) { isDoneMoving = true; hasReachedDestination = true; }
             }
             else
             {
                 transform.position = Vector3.Lerp(
-                 endPosition, startPosition, moveProgress);
-                if (moveProgress >= 1.0f) { isDoneMoving = true; }
+                 VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition())
+                 ,VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
+                 moveProgress);
+                if (moveProgress >= 1.0f) { isDoneMoving = true; hasReachedDestination = true; }
             }
             yield return new WaitForFixedUpdate();
         }
 
-        SetEntityPosition(startPosition, endPosition);
-
-        if (isGoingLeft)
-        {
-            if (endPosition.x >= VectorConversions.ToUnity
-                (((EntityMoveCommand)entityMoveCommand).GetEndPosition()).x)
-            {
-                SetEntityPosition(VectorConversions.ToUnity
-                (((EntityMoveCommand)entityMoveCommand).GetStartPosition()), VectorConversions.ToUnity
-                (((EntityMoveCommand)entityMoveCommand).GetEndPosition()));
-                hasReachedDestination = true;
-            }
-
-
-        }
-        else
-        {
-            if (endPosition.x <= VectorConversions.ToUnity
-                (((EntityMoveCommand)entityMoveCommand).GetEndPosition()).x)
-            {
-                SetEntityPosition(VectorConversions.ToUnity
-                (((EntityMoveCommand)entityMoveCommand).GetStartPosition()), VectorConversions.ToUnity
-                (((EntityMoveCommand)entityMoveCommand).GetEndPosition()));
-                hasReachedDestination = true;
-            }
-        }
-
-        entityMoving = null;
-        // Conditions inside only for replay mode
-        PlayNextEntityCommand();
+        SetEntityPosition(VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
+            VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition()));
+  
+        CleanUpEntityReplayMode();     
     }
 
     private void SetEntityPosition(Vector2 _startPosition, Vector2 _endPosition)
@@ -260,20 +208,6 @@ public class Entity : BasePoolObject
         return entityType;
     }
 
-    public void SetMovementSplits(int _movementSplits)
-    {
-        movementSplits = _movementSplits;
-    }
-
-    public int GetMovementSplits()
-    {
-        return movementSplits;
-    }
-
-    public int GetMaxMovementSplits()
-    {
-        return maxMovementSplits;
-    }
 
     public void SetIsDoneMoving(bool _isDoneMoving)
     {
@@ -302,41 +236,56 @@ public class Entity : BasePoolObject
         {
             if (!ReplayManager.Instance.GetIsRewinding())
             {
-                if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.EntityMoving,
-                    entityType, true, entityIndex) <
-                    ReplayManager.Instance.GetRecordedCommands(CommandType.EntityMoving, poolTag,
-                    entityType, true, entityIndex).Count)
+                if (ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, entityType) <
+                    ReplayManager.Instance.GetRecordedCommands(
+                        CommandType.EntityMoving, entityType).Count)
                 {
-                    ReplayManager.Instance.IncrementCurrentRecordedCommand(CommandType.EntityMoving,
-                        entityType, true, entityIndex);
+                    ReplayManager.Instance.IncrementCurrentRecordedCommand(
+                        CommandType.EntityMoving, entityType);
 
-                    ReplayManager.Instance.GetRecordedCommands(CommandType.EntityMoving, poolTag,
-                    entityType, true, entityIndex)[ReplayManager.Instance.GetCurrentRecordedCommand(
-                        CommandType.EntityMoving, entityType, true, entityIndex)].Execute();
-                    
+                    ReplayManager.Instance.GetRecordedCommands(
+                        CommandType.EntityMoving, entityType)
+                        [ReplayManager.Instance.GetCurrentRecordedCommand(
+                            CommandType.EntityMoving, entityType)].Execute();
                 }
             }
             else
             {
                 if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.EntityMoving,
-                    entityType, true, entityIndex) >= 0)
+                    entityType) >= 0)
                 {
                     ReplayManager.Instance.DecrementCurrentRecordedCommand(CommandType.EntityMoving,
-                        entityType, true, entityIndex);
+                        entityType);
 
-                    ReplayManager.Instance.GetRecordedCommands(CommandType.EntityMoving, poolTag,
-                    entityType, true, entityIndex)[ReplayManager.Instance.GetCurrentRecordedCommand(
-                        CommandType.EntityMoving, entityType, true, entityIndex)].Execute();
+                    ReplayManager.Instance.GetRecordedCommands(
+                        CommandType.EntityMoving, entityType)
+                        [ReplayManager.Instance.GetCurrentRecordedCommand(
+                        CommandType.EntityMoving, entityType)].Execute();
                 }
             }
             
         } 
     }
 
+    private void CleanUpEntityReplayMode()
+    {
+        if (ReplayManager.Instance.GetIsInReplayMode())
+        {
+            hasReachedDestination = false;
+            entityMoveCommand.finished = false;
+            entityMoving = null;
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            entityMoveCommand.finished = false;
+            entityMoving = null;
+        }
+    }
     public void CleanUpEntity()
     {
         hasReachedDestination = false;
-        movementSplits = maxMovementSplits;
         gameObject.SetActive(false);
     }
 }

@@ -1,5 +1,6 @@
 // Game and Code By RvRproduct (Roberto Valentino Reynoso)
 using PoolTags;
+using System.Diagnostics;
 using System.Numerics;
 
 public class EntityMoveCommand : Command
@@ -45,5 +46,9 @@ public class EntityMoveCommand : Command
     public void SetEntity(Entity _entity)
     {
         entity = _entity;
+    }
+    public Entity GetEntity()
+    {
+        return entity;
     }
 }

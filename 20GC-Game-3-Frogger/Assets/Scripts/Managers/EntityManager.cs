@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public enum EntityTypes
 {
@@ -203,23 +204,13 @@ public class EntityManager : ObjectPool
                 // Object to move in the world, it must be swapped in and out, since
                 // we have a pooling system
 
-                // Giving a the spawned entity the correct index so that they have control of when they need
-                // to execute their commands (This is fine here probably)
-                entity.SetEntityIndex(ReplayManager.Instance.GetCurrentRecordedSpawnedEntity(entity.GetEntityType()));
+                //// Giving a the spawned entity the correct index so that they have control of when they need
+                //// to execute their commands (This is fine here probably)
+                //entity.SetEntityIndex(ReplayManager.Instance.GetCurrentRecordedSpawnedEntity(entity.GetEntityType()));
 
-
-                EntityMoveCommand currentEntityMoveCommand = (EntityMoveCommand)ReplayManager.Instance.
-                    GetRecordedCommands(CommandType.EntityMoving, entity.poolTag,
-                    entity.GetEntityType(), true, entity.GetEntityIndex())[ReplayManager.Instance.GetCurrentRecordedCommand(
-                        CommandType.EntityMoving, entity.GetEntityType(), true, entity.GetEntityIndex())];
-
-                currentEntityMoveCommand.SetEntity(entity);
-
-                EntityMovingManager.Instance.StartReplayFromEntityManager(entity.poolTag,
-                    entity.GetEntityType());
+                EntityMovingManager.Instance.ReplayFromEntityManager(entity.GetEntityType(), entity);  
             }
         }
-
 
         if (ReplayManager.Instance.GetIsReplayPlaying() &&
                 ReplayManager.Instance.GetIsInReplayMode())
