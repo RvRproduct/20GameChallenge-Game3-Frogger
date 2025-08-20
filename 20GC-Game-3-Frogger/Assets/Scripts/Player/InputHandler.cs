@@ -44,6 +44,7 @@ public class InputHandler : MonoBehaviour
             VectorConversions.ToSystem(endPosition),
             VectorConversions.ToSystem(direction),
             GameManager.Instance.GetGlobalTick(),
+            GameManager.Instance.GetCurrentCountDown(),
             true);
     }
 

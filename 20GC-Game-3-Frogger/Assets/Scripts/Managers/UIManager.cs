@@ -123,6 +123,12 @@ public class UIManager : MonoBehaviour
             {
                 ReplayManager.Instance.ResetForRewind();
             }
+
+            MoveCommand currentMoveCommand = (MoveCommand)ReplayManager.Instance.GetRecordedCommands(
+                CommandType.PlayerMoving)[ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving)];
+
+            GameManager.Instance.SetCurrentCountDown(currentMoveCommand.GetCountDownTimeEnd());
+
             // For visual Clarity
             rewindButton.colors = selectedColorBlock;
             isRewind = true;
@@ -165,6 +171,11 @@ public class UIManager : MonoBehaviour
             {
                 ReplayManager.Instance.ResetForForward();
             }
+
+            MoveCommand currentMoveCommand = (MoveCommand)ReplayManager.Instance.GetRecordedCommands(
+                CommandType.PlayerMoving)[ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving)];
+
+            GameManager.Instance.SetCurrentCountDown(currentMoveCommand.GetCountDownTimeStart());
 
             // For visual Clarity
             forwardButton.colors = selectedColorBlock;

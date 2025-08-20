@@ -62,6 +62,8 @@ public class Player : MonoBehaviour
 
         while (!isDoneMoving)
         {
+            yield return ReplayManager.Instance.GetIsReplayPlaying() == false;
+
             if (!HitBlock(transform.position, 
                 VectorConversions.ToUnity(((MoveCommand)moveCommand).GetDirection())))
             {
@@ -76,14 +78,14 @@ public class Player : MonoBehaviour
                 else
                 {
                     moveProgress = ((GameManager.Instance.GetGlobalTick() - moveCommand.endTick)
-                        / (float)durationTicks) * - 1;
+                        / (float)durationTicks) * -1;
                 }
 
                 if (!ReplayManager.Instance.GetIsRewinding())
                 {
                     transform.position = Vector3.Lerp(
-                     VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
-                     VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
+                        VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
+                        VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
                     moveProgress);
 
                     if (moveProgress >= 1.0f) { isDoneMoving = true; }
@@ -91,8 +93,8 @@ public class Player : MonoBehaviour
                 else
                 {
                     transform.position = Vector3.Lerp(
-                     VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
-                     VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
+                        VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
+                        VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
                     moveProgress);
                     if (moveProgress >= 1.0f) { isDoneMoving = true; }
                 }
@@ -102,7 +104,7 @@ public class Player : MonoBehaviour
             {
                 hitBlockReaction = true;
                 break;
-            }     
+            }
         }
 
         // If we hit a wall
@@ -113,8 +115,10 @@ public class Player : MonoBehaviour
 
         while (!isDoneMoving)
         {
+            yield return ReplayManager.Instance.GetIsReplayPlaying() == false;
+
             float rawMoveProgress = (GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
-                / (float)(moveCommand.endTick - moveCommand.startTick);
+            / (float)(moveCommand.endTick - moveCommand.startTick);
 
             float moveProgress = Mathf.Clamp01(rawMoveProgress);
 
@@ -125,7 +129,14 @@ public class Player : MonoBehaviour
                 VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
                 moveProgress);
 
-                if (rawMoveProgress >= 1.0f) { isDoneMoving = true; }
+                if (rawMoveProgress >= 1.0f) 
+                {
+                    isDoneMoving = true;
+                    if (((MoveCommand)moveCommand).GetCountDownTimeEnd() < 0)
+                    {
+                        ((MoveCommand)moveCommand).SetCountDownTimeEnd(GameManager.Instance.GetCurrentCountDown());
+                    }
+                }
             }
             else
             {
@@ -134,7 +145,10 @@ public class Player : MonoBehaviour
                 VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
                 moveProgress);
 
-                if (rawMoveProgress <= 0.0f) { isDoneMoving = true; }
+                if (rawMoveProgress >= 1.0f) 
+                { 
+                    isDoneMoving = true;
+                }
             }
 
             yield return new WaitForFixedUpdate();

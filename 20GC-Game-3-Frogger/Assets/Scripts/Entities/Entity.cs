@@ -106,6 +106,8 @@ public class Entity : BasePoolObject
 
         while (!isDoneMoving)
         {
+            yield return ReplayManager.Instance.GetIsReplayPlaying() == false;
+
             float moveProgress = 0.0f;
 
             if (!ReplayManager.Instance.GetIsRewinding())
@@ -124,20 +126,21 @@ public class Entity : BasePoolObject
             if (!ReplayManager.Instance.GetIsRewinding())
             {
                 transform.position = Vector3.Lerp(
-                 VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
-                 VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition()), 
-                 moveProgress);
+                    VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
+                    VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition()),
+                    moveProgress);
 
                 if (moveProgress >= 1.0f) { isDoneMoving = true; }
             }
             else
             {
                 transform.position = Vector3.Lerp(
-                 VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition())
-                 ,VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
-                 moveProgress);
+                    VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition())
+                    , VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
+                    moveProgress);
                 if (moveProgress >= 1.0f) { isDoneMoving = true; }
             }
+            
             yield return new WaitForFixedUpdate();
         }
 

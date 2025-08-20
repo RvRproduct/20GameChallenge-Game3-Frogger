@@ -35,11 +35,6 @@ public class GameManager : MonoBehaviour
         Time.fixedDeltaTime = 1.0f / 60.0f;
     }
 
-    private void Update()
-    {
-        UpdateCountDownUI();
-    }
-
     private void FixedUpdate()
     {
         switch (replayDirection)
@@ -55,6 +50,11 @@ public class GameManager : MonoBehaviour
                     globalTick--;
                 }
                 break;
+        }
+
+        if (replayDirection != ReplayDirection.Pause)
+        {
+            UpdateCountDownUI();
         }
     }
 
@@ -91,13 +91,26 @@ public class GameManager : MonoBehaviour
     {
         if (currentCountDown > 0)
         {
-            countingCountDownSeconds += Time.deltaTime;
+            countingCountDownSeconds += Time.fixedDeltaTime;
 
             if (countingCountDownSeconds >= 1.0f)
             {
-                currentCountDown--;
-                UIManager.Instance.UpdateCountDownTimer(currentCountDown);
-                countingCountDownSeconds = 0.0f;
+                if (!ReplayManager.Instance.GetIsRewinding())
+                {
+                    currentCountDown--;
+                    UIManager.Instance.UpdateCountDownTimer(currentCountDown);
+                    countingCountDownSeconds = 0.0f;
+                }
+                else
+                {
+                    if (currentCountDown < maxCountDownTimer)
+                    {
+                        currentCountDown++;
+                        UIManager.Instance.UpdateCountDownTimer(currentCountDown);
+                        countingCountDownSeconds = 0.0f;
+                    }
+                }
+                
             }
         }
         else if (!player.GetIsDead())
@@ -109,6 +122,11 @@ public class GameManager : MonoBehaviour
     public int GetCurrentCountDown()
     {
         return currentCountDown;
+    }
+
+    public void SetCurrentCountDown(int _currentCountDown)
+    {
+
     }
 
     public void ResetCurrentCountDown()
