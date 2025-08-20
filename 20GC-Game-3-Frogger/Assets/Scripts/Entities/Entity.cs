@@ -16,7 +16,6 @@ public class Entity : BasePoolObject
     private Command entityMoveCommand = null;
     private int entityIndex = -1;
     private bool isDoneMoving = false;
-    private bool hasReachedDestination = false;
 
     protected override void Awake()
     {
@@ -71,19 +70,11 @@ public class Entity : BasePoolObject
 
     public void MoveEntity(Command command)
     {
-
-        if (ReplayManager.Instance.GetIsInReplayMode())
-        {
-            if (entityMoving != null)
-            {
-                Debug.Log("NOT NULL");
-            }
-        }
-        
-
         if (entityMoving == null && gameObject.activeInHierarchy)
         {
+            StopAllCoroutines();
             entityMoveCommand = (EntityMoveCommand)command;
+            
             entityMoving = StartCoroutine(EntityMoving());  
         }
     }
@@ -92,7 +83,6 @@ public class Entity : BasePoolObject
     {
         long durationTicks = 0;
         isDoneMoving = false;
-        hasReachedDestination = false;
 
         if (!ReplayManager.Instance.GetIsInReplayMode())
         {
@@ -125,7 +115,7 @@ public class Entity : BasePoolObject
             }
             else
             {
-                moveProgress = ((GameManager.Instance.GetGlobalTick() - entityMoveCommand.startTick)
+                moveProgress = ((GameManager.Instance.GetGlobalTick() - entityMoveCommand.endTick)
                     / (float)durationTicks) * -1;
             }
 
@@ -138,7 +128,7 @@ public class Entity : BasePoolObject
                  VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition()), 
                  moveProgress);
 
-                if (moveProgress >= 1.0f) { isDoneMoving = true; hasReachedDestination = true; }
+                if (moveProgress >= 1.0f) { isDoneMoving = true; }
             }
             else
             {
@@ -146,7 +136,7 @@ public class Entity : BasePoolObject
                  VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition())
                  ,VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
                  moveProgress);
-                if (moveProgress >= 1.0f) { isDoneMoving = true; hasReachedDestination = true; }
+                if (moveProgress >= 1.0f) { isDoneMoving = true; }
             }
             yield return new WaitForFixedUpdate();
         }
@@ -224,68 +214,11 @@ public class Entity : BasePoolObject
         return entityMoving;
     }
 
-    public bool GetHasReachedDestination()
-    {
-        return hasReachedDestination;
-    }
-
-    private void PlayNextEntityCommand()
-    {
-        if (ReplayManager.Instance.GetIsInReplayMode() &&
-            ReplayManager.Instance.GetIsReplayPlaying())
-        {
-            if (!ReplayManager.Instance.GetIsRewinding())
-            {
-                if (ReplayManager.Instance.GetCurrentRecordedCommand(
-                    CommandType.EntityMoving, entityType) <
-                    ReplayManager.Instance.GetRecordedCommands(
-                        CommandType.EntityMoving, entityType).Count)
-                {
-                    ReplayManager.Instance.IncrementCurrentRecordedCommand(
-                        CommandType.EntityMoving, entityType);
-
-                    ReplayManager.Instance.GetRecordedCommands(
-                        CommandType.EntityMoving, entityType)
-                        [ReplayManager.Instance.GetCurrentRecordedCommand(
-                            CommandType.EntityMoving, entityType)].Execute();
-                }
-            }
-            else
-            {
-                if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.EntityMoving,
-                    entityType) >= 0)
-                {
-                    ReplayManager.Instance.DecrementCurrentRecordedCommand(CommandType.EntityMoving,
-                        entityType);
-
-                    ReplayManager.Instance.GetRecordedCommands(
-                        CommandType.EntityMoving, entityType)
-                        [ReplayManager.Instance.GetCurrentRecordedCommand(
-                        CommandType.EntityMoving, entityType)].Execute();
-                }
-            }
-            
-        } 
-    }
-
     private void CleanUpEntityReplayMode()
     {
-        if (ReplayManager.Instance.GetIsInReplayMode())
-        {
-            hasReachedDestination = false;
-            entityMoveCommand.finished = false;
-            entityMoving = null;
-            gameObject.SetActive(false);
-        }
-        else
-        {
-            entityMoveCommand.finished = false;
-            entityMoving = null;
-        }
-    }
-    public void CleanUpEntity()
-    {
-        hasReachedDestination = false;
+        entityMoveCommand.finished = false;
+        ((EntityMoveCommand)entityMoveCommand).SetEntity(null);
+        entityMoving = null;
         gameObject.SetActive(false);
     }
 }

@@ -86,7 +86,7 @@ public class UIManager : MonoBehaviour
                 if (isForward || isRewind)
                 {
                     ReplayManager.Instance.StartReplay();
-                    EntityManager.Instance.StartReplay();
+                   // EntityManager.Instance.StartReplay();
                 }
             }
         }
@@ -111,7 +111,7 @@ public class UIManager : MonoBehaviour
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
             ReplayManager.Instance.StartReplay();
-            EntityManager.Instance.StartReplay();
+            //EntityManager.Instance.StartReplay();
         }
     }
 
@@ -119,6 +119,10 @@ public class UIManager : MonoBehaviour
     {
         if (!isRewind)
         {
+            if (ReplayManager.Instance.GetIsAtEndReplay())
+            {
+                ReplayManager.Instance.ResetForRewind();
+            }
             // For visual Clarity
             rewindButton.colors = selectedColorBlock;
             isRewind = true;
@@ -141,7 +145,7 @@ public class UIManager : MonoBehaviour
             if (ReplayManager.Instance.GetIsReplayPlaying())
             {
                 ReplayManager.Instance.StartReplay();
-                EntityManager.Instance.StartReplay();
+                //EntityManager.Instance.StartReplay();
             }
 
         }
@@ -157,6 +161,11 @@ public class UIManager : MonoBehaviour
     {
         if (!isForward)
         {
+            if (ReplayManager.Instance.GetIsAtEndReplay())
+            {
+                ReplayManager.Instance.ResetForForward();
+            }
+
             // For visual Clarity
             forwardButton.colors = selectedColorBlock;
             isForward = true;
@@ -179,7 +188,7 @@ public class UIManager : MonoBehaviour
             if (ReplayManager.Instance.GetIsReplayPlaying())
             {
                 ReplayManager.Instance.StartReplay();
-                EntityManager.Instance.StartReplay();
+              // EntityManager.Instance.StartReplay();
             }
 
         }
@@ -227,7 +236,7 @@ public class UIManager : MonoBehaviour
         replayModePrompt.SetActive(false);
         ReplayManager.Instance.SetIsReplayPlaying(false);
         ReplayManager.Instance.SetIsInReplayMode(true);
-        ReplayManager.Instance.RefreshCurrentRecordedEntity();
+        ReplayManager.Instance.CleanUpCommands();
         RestartReplay();
         replayMode.SetActive(true);
     }

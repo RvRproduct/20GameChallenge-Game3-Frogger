@@ -67,7 +67,6 @@ public class EntityManager : ObjectPool
     private void FixedUpdate()
     {
         if (spawning == null &&
-            !ReplayManager.Instance.GetIsInReplayMode() &&
             ReplayManager.Instance.GetIsReplayPlaying())
         {
             SpawnTimer();
@@ -164,6 +163,50 @@ public class EntityManager : ObjectPool
         return false;
     }
 
+    public void SpawnEntityNormal(string entityTag, Vector3 spawnPoint)
+    {
+        GameObject validObject = GetValidObjectInPool(entityTag);
+
+        if (!ReplayManager.Instance.GetIsRewinding())
+        {
+            validObject.transform.position = spawnPoint;
+        }
+        else
+        {
+            float reflectSpawnPointXAxis = -1.0f;
+            spawnPoint = new Vector3(spawnPoint.x * reflectSpawnPointXAxis,
+                spawnPoint.y, spawnPoint.z);
+
+
+            validObject.transform.position = spawnPoint;
+        }
+
+        if (!ReplayManager.Instance.GetIsInReplayMode())
+        {
+            // eh
+            Entity entity = validObject.GetComponent<Entity>();
+            // Why not... Another Manager. In such a great spot
+            EntityMovingManager.Instance.EntityMoveCommander(entity,
+                    entityTag, spawnPoint);
+        }
+        else
+        {
+            if (ReplayManager.Instance.GetIsReplayPlaying())
+            {
+                Entity entity = validObject.GetComponent<Entity>();
+                // Hack to make sure that the entity moving command has a valid Entity
+                // Object to move in the world, it must be swapped in and out, since
+                // we have a pooling system
+
+                //// Giving a the spawned entity the correct index so that they have control of when they need
+                //// to execute their commands (This is fine here probably)
+                //entity.SetEntityIndex(ReplayManager.Instance.GetCurrentRecordedSpawnedEntity(entity.GetEntityType()));
+
+                EntityMovingManager.Instance.ReplayFromEntityManager(entity.GetEntityType(), entity);
+            }
+        }
+    }
+
     // For Command on Execute
     public void SpawnEntity(Command _spawnCommand)
     {
@@ -232,7 +275,6 @@ public class EntityManager : ObjectPool
         Command spawnCommand = HandleSpawn(entityTag, spawnPoint);
         ReplayManager.Instance.AddRecordedCommand(CommandType.Spawning, spawnCommand);
         HandleCommand(spawnCommand);
-        spawnCommand.Execute();
     }
 
     private void CheckReplaySpawnPoint(string entityTag, EntityLocationPlacement entityLocation)
@@ -242,7 +284,7 @@ public class EntityManager : ObjectPool
         {
             foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)
             {
-                SpawnEntity(entityTag, spawnPoint.position);
+                SpawnEntityNormal(entityTag, spawnPoint.position);
             }
         }
         else
@@ -253,7 +295,7 @@ public class EntityManager : ObjectPool
                     spawnPoint.position.x * reflectSpawnPointXAxis,
                     spawnPoint.position.y, 
                     spawnPoint.position.z);
-                SpawnEntity(entityTag, reflectedSpawnPoint);
+                SpawnEntityNormal(entityTag, reflectedSpawnPoint);
             }
         }
     }
@@ -262,6 +304,7 @@ public class EntityManager : ObjectPool
     {
         StopAllCoroutines();
         ResetSpawnTimes();
+        spawning = null;
 
         int countDestroy = 0;
 

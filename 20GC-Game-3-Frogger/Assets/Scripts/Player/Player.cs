@@ -75,7 +75,7 @@ public class Player : MonoBehaviour
                 }
                 else
                 {
-                    moveProgress = ((GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
+                    moveProgress = ((GameManager.Instance.GetGlobalTick() - moveCommand.endTick)
                         / (float)durationTicks) * - 1;
                 }
 
@@ -176,16 +176,25 @@ public class Player : MonoBehaviour
         {
             if (!ReplayManager.Instance.GetIsRewinding())
             {
-                ReplayManager.Instance.IncrementCurrentRecordedCommand(CommandType.PlayerMoving);
+                if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving) <
+                    ReplayManager.Instance.GetRecordedCommands(CommandType.PlayerMoving).Count)
+                {
+                    ReplayManager.Instance.IncrementCurrentRecordedCommand(CommandType.PlayerMoving);
+                }
+                
             }
             else
             {
-                ReplayManager.Instance.DecrementCurrentRecordedCommand(CommandType.PlayerMoving);
+                if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving) > 0)
+                {
+                    ReplayManager.Instance.DecrementCurrentRecordedCommand(CommandType.PlayerMoving);
+                }   
             }
         }
 
         moveCommand.finished = false;
         inMiddleOfMoveCommand = false;
+        playerMoving = null;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
