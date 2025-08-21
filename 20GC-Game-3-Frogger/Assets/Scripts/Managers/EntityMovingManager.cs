@@ -1,7 +1,5 @@
+// Game and Code By RvRproduct (Roberto Valentino Reynoso)
 using PoolTags;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
 using UnityEngine;
 
 public class EntityMovingManager : MonoBehaviour
@@ -35,7 +33,11 @@ public class EntityMovingManager : MonoBehaviour
             {
                 currentEntityMoveCommand.SetEntity(entity);
             }
-
+            else
+            {
+                entity.CleanUpOutlier();
+            }    
+            
             currentEntityMoveCommand.Execute();
 
             if (ReplayManager.Instance.GetIsInReplayMode() &&

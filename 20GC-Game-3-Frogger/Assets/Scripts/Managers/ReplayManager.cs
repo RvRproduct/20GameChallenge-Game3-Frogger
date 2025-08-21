@@ -30,8 +30,14 @@ public class ReplayManager : MonoBehaviour
     private bool isRewinding = false;
     private bool isInReplayMode = false;
     private bool isAtEndReplay = false;
+    private bool isStartingFromBack = false;
     // Coroutine
     private Coroutine playerCoroutine = null;
+    // Capture Replay End Tick
+    private int endReplayTick = 0;
+    [Header("Extra UnNeeded Commands")]
+    [SerializeField] private int maxNumberOfCuts = 5;
+    private int numberOfCuts;
 
     private void Awake()
     {
@@ -49,6 +55,7 @@ public class ReplayManager : MonoBehaviour
         currentRecordedEntityCommand.Add(EntityTypes.SlimeB, 0);
         currentRecordedEntityCommand.Add(EntityTypes.SlimeG, 0);
         currentRecordedEntityCommand.Add(EntityTypes.SlimeR, 0);
+        numberOfCuts = maxNumberOfCuts;
     }
 
     public void StartReplay()
@@ -84,16 +91,13 @@ public class ReplayManager : MonoBehaviour
             {
                 if (commandType == CommandType.PlayerMoving)
                 {
-                    isAtEndReplay = true;
-                    StopCoroutine(playerCoroutine);
-                    playerCoroutine = null;
-
-                }
-
-                if (commandType == CommandType.Spawning)
-                {
-                    EntityManager.Instance.ResetAllEntities();
-                }      
+                    if (isAtEndReplay)
+                    {
+                        StopCoroutine(playerCoroutine);
+                        playerCoroutine = null;
+                        //EntityManager.Instance.ResetAllEntities();
+                    }
+                }   
             }
 
             yield return new WaitForFixedUpdate();
@@ -119,17 +123,11 @@ public class ReplayManager : MonoBehaviour
             if (GetCurrentRecordedCommand(commandType) <= 0)
             {
 
-                if (commandType == CommandType.PlayerMoving)
+                if (isAtEndReplay)
                 {
-                    isAtEndReplay = true;
                     StopCoroutine(playerCoroutine);
                     playerCoroutine = null;
-                }
-
-                if (commandType == CommandType.Spawning)
-                {
-
-                    EntityManager.Instance.ResetAllEntities();
+                    //EntityManager.Instance.ResetAllEntities();
                 }
             }
 
@@ -262,6 +260,16 @@ public class ReplayManager : MonoBehaviour
         }
     }
 
+    public void SetEndReplayTick(int _endReplayTick)
+    {
+        endReplayTick = _endReplayTick;
+    }
+
+    public int GetEndReplayTick()
+    {
+        return endReplayTick;
+    }
+
     public void IncrementCurrentRecordedCommand(CommandType commandType,
         EntityTypes entityType = EntityTypes.None)
     {
@@ -317,14 +325,20 @@ public class ReplayManager : MonoBehaviour
         return isAtEndReplay;
     }
 
+    public void SetIsAtEndReplay(bool _isAtEndReplay)
+    {
+        isAtEndReplay = _isAtEndReplay;
+    }
+
     public void ResetForRewind()
     {
         GameManager.Instance.SetReplayDirection(ReplayDirection.Pause);
-
+        isStartingFromBack = true;
         int commandIndex = GetRecordedCommands(CommandType.PlayerMoving).Count - 2;
+        MoveCommand currentMoveCommand = (MoveCommand)GetRecordedCommands(CommandType.PlayerMoving)
+            [GetRecordedCommands(CommandType.PlayerMoving).Count - 1];
 
-        GameManager.Instance.SetGlobalTick(
-            (GetRecordedCommands(CommandType.PlayerMoving))[commandIndex].endTick);
+        GameManager.Instance.SetGlobalTick(endReplayTick);
 
         SetCurrentRecordedCommand(CommandType.PlayerMoving, commandIndex);
 
@@ -350,7 +364,7 @@ public class ReplayManager : MonoBehaviour
     public void ResetForForward()
     {
         GameManager.Instance.SetReplayDirection(ReplayDirection.Pause);
-
+        isStartingFromBack = false;
         GameManager.Instance.SetGlobalTick(0);
 
         SetCurrentRecordedCommand(CommandType.PlayerMoving, 0);
@@ -399,14 +413,60 @@ public class ReplayManager : MonoBehaviour
         {
             if (GetRecordedCommands(CommandType.EntityMoving, entityType)[currentEntityCommand].endTick >=
                 GetRecordedCommands(CommandType.PlayerMoving)[
-                    GetRecordedCommands(CommandType.PlayerMoving).Count - 1].endTick)
+                    GetRecordedCommands(CommandType.PlayerMoving).Count - 1].endTick &&
+                    numberOfCuts > 0)
             {
+                if (endReplayTick < GetRecordedCommands(CommandType.EntityMoving, entityType)[currentEntityCommand].endTick)
+                {
+                    endReplayTick = GetRecordedCommands(CommandType.EntityMoving, entityType)[currentEntityCommand].endTick;
+                }
                 GetRecordedCommands(CommandType.EntityMoving, entityType).RemoveAt(currentEntityCommand);
+                numberOfCuts--;
             }
             else
             {
+                numberOfCuts = maxNumberOfCuts;
                 break;
             }
         }
+    }
+
+    public void NullAllEntitiesToCommands(bool resetMidWay)
+    {
+        NullEntitiesToCommands(EntityTypes.Bat, resetMidWay);
+        NullEntitiesToCommands(EntityTypes.Skeleton, resetMidWay);
+        NullEntitiesToCommands(EntityTypes.SlimeB, resetMidWay);
+        NullEntitiesToCommands(EntityTypes.SlimeG, resetMidWay);
+        NullEntitiesToCommands(EntityTypes.SlimeR, resetMidWay);
+    }
+
+    private void NullEntitiesToCommands(EntityTypes entityType, bool resetMidWay)
+    {
+        foreach (Command currentEntityCommand in GetRecordedCommands(CommandType.EntityMoving, entityType))
+        {
+            if (!resetMidWay)
+            {
+                ((EntityMoveCommand)currentEntityCommand).SetEntity(null);
+            }
+            else
+            {
+                if (((EntityMoveCommand)currentEntityCommand).GetEntity() != null &&
+                    !((EntityMoveCommand)currentEntityCommand).GetEntity().isActiveAndEnabled)
+                {
+                    ((EntityMoveCommand)currentEntityCommand).SetEntity(null);
+                }
+            }
+            
+        }
+    }
+
+    public void SetIsStartingFromBack(bool _isStartingFromBack)
+    {
+        isStartingFromBack = _isStartingFromBack;
+    }
+
+    public bool GetIsStartingFromBack()
+    {
+        return isStartingFromBack;
     }
 }

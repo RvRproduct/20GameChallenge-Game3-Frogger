@@ -67,7 +67,8 @@ public class EntityManager : ObjectPool
     private void FixedUpdate()
     {
         if (spawning == null &&
-            ReplayManager.Instance.GetIsReplayPlaying())
+            ReplayManager.Instance.GetIsReplayPlaying() &&
+            !ReplayManager.Instance.GetIsAtEndReplay())
         {
             SpawnTimer();
         } 
@@ -75,14 +76,7 @@ public class EntityManager : ObjectPool
 
     private void SpawnTimer()
     {
-
-        if (spawning == null)
-        {
-            if (ReplayManager.Instance.GetIsReplayPlaying())
-            {
-                spawning = StartCoroutine(SpawnEntitiesInWorld());
-            }
-        }
+        spawning = StartCoroutine(SpawnEntitiesInWorld());
     }
 
     private void HandleCommand(Command _spawn)
@@ -167,19 +161,7 @@ public class EntityManager : ObjectPool
     {
         GameObject validObject = GetValidObjectInPool(entityTag);
 
-        if (!ReplayManager.Instance.GetIsRewinding())
-        {
-            validObject.transform.position = spawnPoint;
-        }
-        else
-        {
-            float reflectSpawnPointXAxis = -1.0f;
-            spawnPoint = new Vector3(spawnPoint.x * reflectSpawnPointXAxis,
-                spawnPoint.y, spawnPoint.z);
-
-
-            validObject.transform.position = spawnPoint;
-        }
+        validObject.transform.position = spawnPoint;
 
         if (!ReplayManager.Instance.GetIsInReplayMode())
         {

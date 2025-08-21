@@ -41,6 +41,17 @@ public class GameManager : MonoBehaviour
         {
             case ReplayDirection.Forward:
                 globalTick++;
+
+                if (ReplayManager.Instance.GetIsInReplayMode() &&
+                    !ReplayManager.Instance.GetIsAtEndReplay())
+                {
+                    if (globalTick >= ReplayManager.Instance.GetEndReplayTick())
+                    {
+                        ReplayManager.Instance.SetIsAtEndReplay(true);
+                        EntityManager.Instance.ResetAllEntities();
+                        ReplayManager.Instance.NullAllEntitiesToCommands(false);
+                    }
+                }
                 break;
             case ReplayDirection.Pause:
                 break;
@@ -48,6 +59,17 @@ public class GameManager : MonoBehaviour
                 if (globalTick > 0)
                 {
                     globalTick--;
+
+                    if (ReplayManager.Instance.GetIsInReplayMode() &&
+                        !ReplayManager.Instance.GetIsAtEndReplay())
+                    {
+                        if (globalTick <= 0)
+                        {
+                            ReplayManager.Instance.SetIsAtEndReplay(true);
+                            EntityManager.Instance.ResetAllEntities();
+                            ReplayManager.Instance.NullAllEntitiesToCommands(false);
+                        }
+                    }
                 }
                 break;
         }

@@ -62,7 +62,7 @@ public class Player : MonoBehaviour
 
         while (!isDoneMoving)
         {
-            yield return ReplayManager.Instance.GetIsReplayPlaying() == false;
+            yield return new WaitUntil(() => ReplayManager.Instance.GetIsReplayPlaying());
 
             if (!HitBlock(transform.position, 
                 VectorConversions.ToUnity(((MoveCommand)moveCommand).GetDirection())))
@@ -72,13 +72,22 @@ public class Player : MonoBehaviour
 
                 if (!ReplayManager.Instance.GetIsRewinding())
                 {
+
                     moveProgress = (GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
                         / (float)durationTicks;
                 }
                 else
                 {
-                    moveProgress = ((GameManager.Instance.GetGlobalTick() - moveCommand.endTick)
-                        / (float)durationTicks) * -1;
+                    if (!ReplayManager.Instance.GetIsStartingFromBack())
+                    {
+                        moveProgress = ((GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
+                        / (float)durationTicks * -1);
+                    }
+                    else
+                    {
+                        moveProgress = ((GameManager.Instance.GetGlobalTick() - moveCommand.endTick)
+                        / (float)durationTicks * -1);
+                    }
                 }
 
                 if (!ReplayManager.Instance.GetIsRewinding())
@@ -115,7 +124,7 @@ public class Player : MonoBehaviour
 
         while (!isDoneMoving)
         {
-            yield return ReplayManager.Instance.GetIsReplayPlaying() == false;
+            yield return new WaitUntil(() => ReplayManager.Instance.GetIsReplayPlaying());
 
             float rawMoveProgress = (GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
             / (float)(moveCommand.endTick - moveCommand.startTick);
@@ -297,6 +306,11 @@ public class Player : MonoBehaviour
         playerLocation = _newPlayerLocation;
         transform.position = playerLocation;
         playerMoving = null;
+    }
+
+    public void ResetToStartingLocation()
+    {
+        transform.position = playerStartingLocation;
     }
 
     public Vector3 GetPlayerStartingLocation()

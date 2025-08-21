@@ -106,7 +106,7 @@ public class Entity : BasePoolObject
 
         while (!isDoneMoving)
         {
-            yield return ReplayManager.Instance.GetIsReplayPlaying() == false;
+            yield return new WaitUntil(() => ReplayManager.Instance.GetIsReplayPlaying());
 
             float moveProgress = 0.0f;
 
@@ -114,14 +114,25 @@ public class Entity : BasePoolObject
             {
                 moveProgress = (GameManager.Instance.GetGlobalTick() - entityMoveCommand.startTick)
                     / (float)durationTicks;
+
             }
             else
             {
-                moveProgress = ((GameManager.Instance.GetGlobalTick() - entityMoveCommand.endTick)
-                    / (float)durationTicks) * -1;
-            }
+                if (!ReplayManager.Instance.GetIsStartingFromBack())
+                {
+                    moveProgress = ((GameManager.Instance.GetGlobalTick() - entityMoveCommand.startTick)
+                    / (float)durationTicks * -1);
+                }
+                else
+                {
+                    moveProgress = ((GameManager.Instance.GetGlobalTick() - entityMoveCommand.endTick)
+                    / (float)durationTicks * -1);
+                }
 
-            moveProgress = Mathf.Clamp01(moveProgress);
+                Debug.Log($"MoveProgress Rewind {moveProgress}");
+            }
+            
+            // moveProgress = Mathf.Clamp01(moveProgress);
 
             if (!ReplayManager.Instance.GetIsRewinding())
             {
@@ -221,6 +232,12 @@ public class Entity : BasePoolObject
     {
         entityMoveCommand.finished = false;
         ((EntityMoveCommand)entityMoveCommand).SetEntity(null);
+        entityMoving = null;
+        gameObject.SetActive(false);
+    }
+
+    public void CleanUpOutlier()
+    {
         entityMoving = null;
         gameObject.SetActive(false);
     }

@@ -123,11 +123,22 @@ public class UIManager : MonoBehaviour
             {
                 ReplayManager.Instance.ResetForRewind();
             }
+            else if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving) >=
+                ReplayManager.Instance.GetRecordedCommands(CommandType.PlayerMoving).Count - 1)
+            {
+                ReplayManager.Instance.SetIsAtEndReplay(true);
+                EntityManager.Instance.ResetAllEntities();
+                ReplayManager.Instance.NullAllEntitiesToCommands(false);
+
+                ReplayManager.Instance.ResetForRewind();
+            }
+            else
+            {
+                ReplayManager.Instance.NullAllEntitiesToCommands(true);
+            }
 
             MoveCommand currentMoveCommand = (MoveCommand)ReplayManager.Instance.GetRecordedCommands(
                 CommandType.PlayerMoving)[ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving)];
-
-            GameManager.Instance.SetCurrentCountDown(currentMoveCommand.GetCountDownTimeEnd());
 
             // For visual Clarity
             rewindButton.colors = selectedColorBlock;
@@ -135,6 +146,7 @@ public class UIManager : MonoBehaviour
             isForward = false;
             forwardButton.colors = unSelectedColorBlock;
             GameManager.Instance.SetReplayDirection(ReplayDirection.Rewind);
+            GameManager.Instance.SetCurrentCountDown(currentMoveCommand.GetCountDownTimeEnd());
 
             if (!ReplayManager.Instance.GetIsRewinding())
             {
@@ -171,11 +183,33 @@ public class UIManager : MonoBehaviour
             {
                 ReplayManager.Instance.ResetForForward();
             }
+            else if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving) <= 0 &&
+                !isFirstTime)
+            {
+                ReplayManager.Instance.SetIsAtEndReplay(true);
+                EntityManager.Instance.ResetAllEntities();
+                ReplayManager.Instance.NullAllEntitiesToCommands(false);
+
+                ReplayManager.Instance.ResetForForward();
+            }
+            else
+            {
+                if (ReplayManager.Instance.GetIsStartingFromBack())
+                {
+                    ReplayManager.Instance.SetIsAtEndReplay(true);
+                    EntityManager.Instance.ResetAllEntities();
+                    ReplayManager.Instance.NullAllEntitiesToCommands(false);
+                    GameManager.Instance.GetPlayer().ResetToStartingLocation();
+                    ReplayManager.Instance.ResetForForward();
+                }
+                else
+                {
+                    ReplayManager.Instance.NullAllEntitiesToCommands(true);
+                } 
+            }
 
             MoveCommand currentMoveCommand = (MoveCommand)ReplayManager.Instance.GetRecordedCommands(
-                CommandType.PlayerMoving)[ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving)];
-
-            GameManager.Instance.SetCurrentCountDown(currentMoveCommand.GetCountDownTimeStart());
+            CommandType.PlayerMoving)[ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving)];
 
             // For visual Clarity
             forwardButton.colors = selectedColorBlock;
@@ -183,6 +217,7 @@ public class UIManager : MonoBehaviour
             isRewind = false;
             rewindButton.colors = unSelectedColorBlock;
             GameManager.Instance.SetReplayDirection(ReplayDirection.Forward);
+            GameManager.Instance.SetCurrentCountDown(currentMoveCommand.GetCountDownTimeStart());
 
             if (ReplayManager.Instance.GetIsRewinding())
             {
