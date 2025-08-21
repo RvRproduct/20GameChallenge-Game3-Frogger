@@ -237,27 +237,13 @@ public class ReplayManager : MonoBehaviour
 
     public void RestartReplay()
     {
-        if (!isRewinding)
-        {
-            // This will need more logic soon
-            GameManager.Instance.ResetCurrentCountDown();
-            GameManager.Instance.SetPlayerStartingLocation(
-            GameManager.Instance.GetPlayer().GetPlayerStartingLocation());
-            currentRecordedPlayerMovingCommand = 0;
-            currentRecordedSpawningCommand = 0;
-            RefreshCurrentRecordedEntity();
-        }
-        else
-        {
-            // NEEDS More logic for other edge cases
-            Vector2 startPosition = VectorConversions.ToUnity(((MoveCommand)
-                recordedPlayerMovingCommands[recordedPlayerMovingCommands.Count - 1]).GetStartPosition());
-
-            GameManager.Instance.SetPlayerStartingLocation(
-                new Vector3(startPosition.x, startPosition.y,
-                GameManager.Instance.GetPlayer().transform.position.z));
-            currentRecordedPlayerMovingCommand = recordedPlayerMovingCommands.Count - 1;
-        }
+        // This will need more logic soon
+        GameManager.Instance.ResetCurrentCountDown();
+        GameManager.Instance.SetPlayerStartingLocation(
+        GameManager.Instance.GetPlayer().GetPlayerStartingLocation());
+        currentRecordedPlayerMovingCommand = 0;
+        currentRecordedSpawningCommand = 0;
+        RefreshCurrentRecordedEntity();
     }
 
     public void SetEndReplayTick(int _endReplayTick)

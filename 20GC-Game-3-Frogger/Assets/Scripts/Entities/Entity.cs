@@ -128,11 +128,7 @@ public class Entity : BasePoolObject
                     moveProgress = ((GameManager.Instance.GetGlobalTick() - entityMoveCommand.endTick)
                     / (float)durationTicks * -1);
                 }
-
-                Debug.Log($"MoveProgress Rewind {moveProgress}");
             }
-            
-            // moveProgress = Mathf.Clamp01(moveProgress);
 
             if (!ReplayManager.Instance.GetIsRewinding())
             {

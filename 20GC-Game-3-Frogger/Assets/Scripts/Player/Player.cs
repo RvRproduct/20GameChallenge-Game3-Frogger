@@ -64,6 +64,15 @@ public class Player : MonoBehaviour
         {
             yield return new WaitUntil(() => ReplayManager.Instance.GetIsReplayPlaying());
 
+            // :)
+            if (Treasure.Instance.GetIsOpen())
+            {
+                if (!((MoveCommand)moveCommand).GetHitTreasure())
+                {
+                    Treasure.Instance.TriggerClose();
+                }
+            }
+
             if (!HitBlock(transform.position, 
                 VectorConversions.ToUnity(((MoveCommand)moveCommand).GetDirection())))
             {
@@ -97,7 +106,18 @@ public class Player : MonoBehaviour
                         VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
                     moveProgress);
 
-                    if (moveProgress >= 1.0f) { isDoneMoving = true; }
+                    if (moveProgress >= 1.0f) 
+                    {
+                        if (ReplayManager.Instance.GetIsInReplayMode())
+                        {
+                            if (((MoveCommand)moveCommand).GetCountDownTimeEnd() < 0)
+                            {
+                                ((MoveCommand)moveCommand).SetCountDownTimeEnd(GameManager.Instance.GetCurrentCountDown());
+                            }
+                        }                  
+
+                        isDoneMoving = true; 
+                    }
                 }
                 else
                 {
@@ -117,19 +137,41 @@ public class Player : MonoBehaviour
         }
 
         // If we hit a wall
-        if (!isDoneMoving)
+        if (ReplayManager.Instance.GetIsInReplayMode())
         {
-            moveCommand.endTick += (int)durationTicks;
+            if (!isDoneMoving)
+            {
+                moveCommand.endTick += (int)durationTicks;
+            }
         }
+        
 
         while (!isDoneMoving)
         {
             yield return new WaitUntil(() => ReplayManager.Instance.GetIsReplayPlaying());
 
-            float rawMoveProgress = (GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
-            / (float)(moveCommand.endTick - moveCommand.startTick);
+            float moveProgress = 0.0f;
 
-            float moveProgress = Mathf.Clamp01(rawMoveProgress);
+            if (!ReplayManager.Instance.GetIsRewinding())
+            {
+
+                moveProgress = (GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
+                    / (float)durationTicks;
+            }
+            else
+            {
+                if (!ReplayManager.Instance.GetIsStartingFromBack())
+                {
+                    moveProgress = ((GameManager.Instance.GetGlobalTick() - moveCommand.startTick)
+                    / (float)durationTicks * -1);
+                }
+                else
+                {
+                    moveProgress = ((GameManager.Instance.GetGlobalTick() - moveCommand.endTick)
+                    / (float)durationTicks * -1);
+                }
+            }
+
 
             if (!ReplayManager.Instance.GetIsRewinding())
             {
@@ -138,13 +180,9 @@ public class Player : MonoBehaviour
                 VectorConversions.ToUnity(((MoveCommand)moveCommand).GetStartPosition()),
                 moveProgress);
 
-                if (rawMoveProgress >= 1.0f) 
+                if (moveProgress >= 1.0f) 
                 {
-                    isDoneMoving = true;
-                    if (((MoveCommand)moveCommand).GetCountDownTimeEnd() < 0)
-                    {
-                        ((MoveCommand)moveCommand).SetCountDownTimeEnd(GameManager.Instance.GetCurrentCountDown());
-                    }
+                    isDoneMoving = true;   
                 }
             }
             else
@@ -154,7 +192,7 @@ public class Player : MonoBehaviour
                 VectorConversions.ToUnity(((MoveCommand)moveCommand).GetEndPosition()),
                 moveProgress);
 
-                if (rawMoveProgress >= 1.0f) 
+                if (moveProgress >= 1.0f) 
                 { 
                     isDoneMoving = true;
                 }
@@ -284,8 +322,14 @@ public class Player : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(_origin, direction, rayDistance, blockLayer);
             if (hit.collider != null)
             {
-                if (hit.collider.gameObject.tag == "Treasure")
+                if (hit.collider.gameObject.tag == "Treasure" &&
+                    !Treasure.Instance.GetIsOpen())
                 {
+                    if (moveCommand != null)
+                    {
+                        ((MoveCommand)moveCommand).SetHitTreasure(true);
+                    }
+                    
                     GameManager.Instance.GetTreasure().TriggerOpen();
                 }
 

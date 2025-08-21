@@ -196,6 +196,8 @@ public class UIManager : MonoBehaviour
             {
                 if (ReplayManager.Instance.GetIsStartingFromBack())
                 {
+                    // Ya.... this is a guard if you are starting from back and 
+                    // try to switch directions
                     ReplayManager.Instance.SetIsAtEndReplay(true);
                     EntityManager.Instance.ResetAllEntities();
                     ReplayManager.Instance.NullAllEntitiesToCommands(false);

@@ -3,12 +3,22 @@ using UnityEngine;
 
 public class Treasure : MonoBehaviour
 {
+    static public Treasure Instance;
     private Animator animator;
     private bool isOpen = false;
     private float timeWhenHit = float.PositiveInfinity;
 
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         animator = GetComponent<Animator>();
     }
 
@@ -32,7 +42,10 @@ public class Treasure : MonoBehaviour
 
     public void AfterOpen()
     {
-        UIManager.Instance.PromptForReplay();
+        if (!ReplayManager.Instance.GetIsInReplayMode())
+        {
+            UIManager.Instance.PromptForReplay();
+        } 
     }
 
     public void SetTimeWhenHit(float _timeWhenHit)
@@ -43,5 +56,10 @@ public class Treasure : MonoBehaviour
     public float GetTimeWhenHit()
     {
         return timeWhenHit;
+    }
+
+    public bool GetIsOpen()
+    {
+        return isOpen;
     }
 }
