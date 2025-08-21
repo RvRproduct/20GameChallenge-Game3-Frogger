@@ -80,13 +80,23 @@ public class UIManager : MonoBehaviour
 
             pauseButton.colors = unSelectedColorBlock;
             isPause = false;
+            if (isForward)
+            {
+                SpikeManager.Instance.ForwardAllSpikes();
+            }
+            else
+            {
+                SpikeManager.Instance.ReverseAllSpikes();
+            }
+
             if (!ReplayManager.Instance.GetIsReplayPlaying())
             {
                 ReplayManager.Instance.SetIsReplayPlaying(true);
                 if (isForward || isRewind)
                 {
                     ReplayManager.Instance.StartReplay();
-                   // EntityManager.Instance.StartReplay();
+                    SpikeManager.Instance.StartReplayForAllSpikes();
+                    // EntityManager.Instance.StartReplay();
                 }
             }
         }
@@ -95,6 +105,7 @@ public class UIManager : MonoBehaviour
         {
             pauseButton.colors = selectedColorBlock;
             isPause = true;
+            SpikeManager.Instance.PauseAllSpikes();
             GameManager.Instance.SetReplayDirection(ReplayDirection.Pause);
             ReplayManager.Instance.SetIsReplayPlaying(false);
         }
@@ -106,11 +117,12 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.SetGlobalTick(0);
         ReplayManager.Instance.RestartReplay();
         EntityManager.Instance.ResetAllEntities();
-        SpikeManager.Instance.ResetSpikes();
+        SpikeManager.Instance.ResetAllSpikes();
 
         if (ReplayManager.Instance.GetIsReplayPlaying())
         {
             ReplayManager.Instance.StartReplay();
+            SpikeManager.Instance.StartReplayForAllSpikes();
             //EntityManager.Instance.StartReplay();
         }
     }
@@ -122,6 +134,7 @@ public class UIManager : MonoBehaviour
             if (ReplayManager.Instance.GetIsAtEndReplay())
             {
                 ReplayManager.Instance.ResetForRewind();
+                SpikeManager.Instance.ReverseAllSpikes(true);
             }
             else if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving) >=
                 ReplayManager.Instance.GetRecordedCommands(CommandType.PlayerMoving).Count - 1)
@@ -131,10 +144,12 @@ public class UIManager : MonoBehaviour
                 ReplayManager.Instance.NullAllEntitiesToCommands(false);
 
                 ReplayManager.Instance.ResetForRewind();
+                SpikeManager.Instance.ReverseAllSpikes(true);
             }
             else
             {
                 ReplayManager.Instance.NullAllEntitiesToCommands(true);
+                SpikeManager.Instance.ReverseAllSpikes(false);
             }
 
             MoveCommand currentMoveCommand = (MoveCommand)ReplayManager.Instance.GetRecordedCommands(
@@ -150,19 +165,21 @@ public class UIManager : MonoBehaviour
 
             if (!ReplayManager.Instance.GetIsRewinding())
             {
-                EntityManager.Instance.SetPoolTagForReplay();
+                EntityManager.Instance.SetPoolTagForReplay();     
                 ReplayManager.Instance.SetIsRewinding(true);
             }
 
             if (isFirstTime)
             {
                 ReplayManager.Instance.SetIsReplayPlaying(true);
+                SpikeManager.Instance.ReverseAllSpikes(true);
                 isFirstTime = false;
             }
 
             if (ReplayManager.Instance.GetIsReplayPlaying())
             {
                 ReplayManager.Instance.StartReplay();
+                SpikeManager.Instance.StartReplayForAllSpikes();
                 //EntityManager.Instance.StartReplay();
             }
 
@@ -182,6 +199,7 @@ public class UIManager : MonoBehaviour
             if (ReplayManager.Instance.GetIsAtEndReplay())
             {
                 ReplayManager.Instance.ResetForForward();
+                SpikeManager.Instance.ForwardAllSpikes(true);
             }
             else if (ReplayManager.Instance.GetCurrentRecordedCommand(CommandType.PlayerMoving) <= 0 &&
                 !isFirstTime)
@@ -191,6 +209,7 @@ public class UIManager : MonoBehaviour
                 ReplayManager.Instance.NullAllEntitiesToCommands(false);
 
                 ReplayManager.Instance.ResetForForward();
+                SpikeManager.Instance.ForwardAllSpikes(true);
             }
             else
             {
@@ -203,10 +222,12 @@ public class UIManager : MonoBehaviour
                     ReplayManager.Instance.NullAllEntitiesToCommands(false);
                     GameManager.Instance.GetPlayer().ResetToStartingLocation();
                     ReplayManager.Instance.ResetForForward();
+                    SpikeManager.Instance.ForwardAllSpikes(true);
                 }
                 else
                 {
                     ReplayManager.Instance.NullAllEntitiesToCommands(true);
+                    SpikeManager.Instance.ForwardAllSpikes(false);
                 } 
             }
 
@@ -230,12 +251,14 @@ public class UIManager : MonoBehaviour
             if (isFirstTime)
             {
                 ReplayManager.Instance.SetIsReplayPlaying(true);
+                SpikeManager.Instance.ForwardAllSpikes(true);
                 isFirstTime = false;
             }
 
             if (ReplayManager.Instance.GetIsReplayPlaying())
             {
                 ReplayManager.Instance.StartReplay();
+                SpikeManager.Instance.StartReplayForAllSpikes();
               // EntityManager.Instance.StartReplay();
             }
 
