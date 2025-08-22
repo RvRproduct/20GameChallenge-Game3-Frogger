@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
-using System.Data;
 
 public enum CommandType
 {
@@ -95,7 +94,6 @@ public class ReplayManager : MonoBehaviour
                     {
                         StopCoroutine(playerCoroutine);
                         playerCoroutine = null;
-                        //EntityManager.Instance.ResetAllEntities();
                     }
                 }   
             }
@@ -127,7 +125,6 @@ public class ReplayManager : MonoBehaviour
                 {
                     StopCoroutine(playerCoroutine);
                     playerCoroutine = null;
-                    //EntityManager.Instance.ResetAllEntities();
                 }
             }
 

@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
     private int maxPlayerLives = 3;
     private int currentPlayerLives;
     private bool isDead = false;
+    private bool isHitByKillingEntity = false;
     Command moveCommand = null;
 
     private void Awake()
@@ -60,18 +61,40 @@ public class Player : MonoBehaviour
         
         bool isDoneMoving = false;
 
+        // :)
+        if (moveCommand != null)
+        {
+            if (GameManager.Instance.GetCurrentCountDown() != 
+                ((MoveCommand)moveCommand).GetCountDownTimeStart())
+            {
+                GameManager.Instance.SetCurrentCountDown(
+                    ((MoveCommand)moveCommand).GetCountDownTimeStart());
+            }
+        }
+
+        // :)
+        if (Treasure.Instance.GetIsOpen())
+        {
+            if (!((MoveCommand)moveCommand).GetHitTreasure())
+            {
+                Treasure.Instance.TriggerClose();
+            }
+        }
+
+        // :)
+        if (moveCommand != null)
+        {
+            if (currentPlayerLives != ((MoveCommand)moveCommand).GetPlayerLives())
+            {
+                currentPlayerLives = ((MoveCommand)moveCommand).GetPlayerLives();
+                UIManager.Instance.TakeALifeAway(currentPlayerLives);
+            }
+        }
+
+
         while (!isDoneMoving)
         {
             yield return new WaitUntil(() => ReplayManager.Instance.GetIsReplayPlaying());
-            
-            // :)
-            if (Treasure.Instance.GetIsOpen())
-            {
-                if (!((MoveCommand)moveCommand).GetHitTreasure())
-                {
-                    Treasure.Instance.TriggerClose();
-                }
-            }
 
             if (!HitBlock(transform.position, 
                 VectorConversions.ToUnity(((MoveCommand)moveCommand).GetDirection())))
@@ -88,14 +111,6 @@ public class Player : MonoBehaviour
                 if ((!ReplayManager.Instance.GetIsRewinding() && GameManager.Instance.GetGlobalTick() >= moveCommand.endTick) ||
                     ReplayManager.Instance.GetIsRewinding() && GameManager.Instance.GetGlobalTick() <= moveCommand.startTick)
                 {
-                    if (ReplayManager.Instance.GetIsInReplayMode())
-                    {
-                        if (((MoveCommand)moveCommand).GetCountDownTimeEnd() < 0)
-                        {
-                            ((MoveCommand)moveCommand).SetCountDownTimeEnd(GameManager.Instance.GetCurrentCountDown());
-                        }
-                    }
-
                     isDoneMoving = true;
                 }
 
@@ -136,14 +151,6 @@ public class Player : MonoBehaviour
             if ((!ReplayManager.Instance.GetIsRewinding() && GameManager.Instance.GetGlobalTick() >= moveCommand.endTick) ||
                     ReplayManager.Instance.GetIsRewinding() && GameManager.Instance.GetGlobalTick() <= moveCommand.startTick)
             {
-                if (ReplayManager.Instance.GetIsInReplayMode())
-                {
-                    if (((MoveCommand)moveCommand).GetCountDownTimeEnd() < 0)
-                    {
-                        ((MoveCommand)moveCommand).SetCountDownTimeEnd(GameManager.Instance.GetCurrentCountDown());
-                    }
-                }
-
                 isDoneMoving = true;
             }
 
@@ -206,7 +213,11 @@ public class Player : MonoBehaviour
         
         if (collision.gameObject.tag == "KillingEntity")
         {
-            PlayerDie();
+            if (!isHitByKillingEntity)
+            {
+                isHitByKillingEntity = true;
+                PlayerDie();
+            }  
         }
     }
 
@@ -214,27 +225,58 @@ public class Player : MonoBehaviour
     {
         if (currentPlayerLives >= 1)
         {
-            boxCollider2D.enabled = false;
-            isDead = true;
-            UIManager.Instance.TakeALifeAway();
-            SetTriggerDeath();
+            if (!ReplayManager.Instance.GetIsInReplayMode())
+            {
+                if (moveCommand != null)
+                {
+                    ((MoveCommand)moveCommand).SetPlayerLives(currentPlayerLives);
+                }
+            }
+
+            currentPlayerLives--;
+            UIManager.Instance.TakeALifeAway(currentPlayerLives);
+
+            // Doing this since the death animation would have to 
+            // be added as a command other wise, which could be done
+            // but for the purposes of this game it's cool
+            if (!ReplayManager.Instance.GetIsRewinding())
+            {
+                boxCollider2D.enabled = false;
+                isDead = true;
+                SetTriggerDeath(); 
+            }
+            else
+            {
+                if (isHitByKillingEntity)
+                {
+                    isHitByKillingEntity = false;
+                }
+                ResetToStartingLocation();
+            }
+            
         }
     }
 
 
     public void OnDeath()
     {
-        currentPlayerLives--;
-
         if (currentPlayerLives >= 1)
         {
             isDead = false;
             transform.position = playerStartingLocation;
             GameManager.Instance.ResetCurrentCountDown();
             boxCollider2D.enabled = true;
+            isHitByKillingEntity = false;
             SetTriggerIdle();
         }
        
+    }
+
+    public void RefreshPlayersLifeState()
+    {
+        isDead = false;
+        isHitByKillingEntity = false;
+        currentPlayerLives = maxPlayerLives;
     }
 
     public bool GetIsDead()
@@ -313,6 +355,21 @@ public class Player : MonoBehaviour
     public bool GetInMiddleOfMoveCommand()
     {
         return inMiddleOfMoveCommand;
+    }
+
+    public int GetCurrentPlayerLives()
+    {
+        return currentPlayerLives;
+    }
+
+    public void SetCurrentPlayerlives(int _currentLives)
+    {
+        currentPlayerLives = _currentLives;
+    }
+
+    public int GetMaxPlayerLives()
+    {
+        return maxPlayerLives;
     }
 
     // Animation

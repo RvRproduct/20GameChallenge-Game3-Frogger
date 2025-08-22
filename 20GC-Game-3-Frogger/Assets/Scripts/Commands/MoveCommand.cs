@@ -5,15 +5,16 @@ public class MoveCommand : Command
 {
     public MoveCommand(Player _player,
         Vector2 _startPosition, Vector2 _endPosition, Vector2 _direction,
-        int _startTick, int _CountDownTimeStart, bool _finished) 
+        int _startTick, int _CountDownTimeStart, int _currentLives, bool _finished) 
     {
         player = _player;
         startPosition = _startPosition;
         endPosition = _endPosition;
         direction = _direction;
         startTick = _startTick;
-        finished = _finished;
         CountDownTimeStart = _CountDownTimeStart;
+        currentLives = _currentLives;
+        finished = _finished;
 
     }
     public override void Execute()
@@ -30,6 +31,7 @@ public class MoveCommand : Command
     private int CountDownTimeStart;
     private int CountDownTimeEnd = -1;
     private bool hitTreasure = false;
+    private int currentLives;
 
     public Vector2 GetStartPosition()
     {
@@ -69,5 +71,15 @@ public class MoveCommand : Command
     public void SetHitTreasure(bool _hitTreasure)
     {
         hitTreasure = _hitTreasure;
+    }
+
+    public void SetPlayerLives(int _currentLives)
+    {
+        currentLives = _currentLives;
+    }
+
+    public int GetPlayerLives()
+    {
+        return currentLives; 
     }
 }

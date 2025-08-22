@@ -74,7 +74,9 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        if (replayDirection != ReplayDirection.Pause)
+        if (replayDirection != ReplayDirection.Pause &&
+            !ReplayManager.Instance.GetIsAtEndReplay() &&
+            !Treasure.Instance.GetIsOpen())
         {
             UpdateCountDownUI();
         }
@@ -148,7 +150,7 @@ public class GameManager : MonoBehaviour
 
     public void SetCurrentCountDown(int _currentCountDown)
     {
-
+        currentCountDown = _currentCountDown;
     }
 
     public void ResetCurrentCountDown()

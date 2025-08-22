@@ -132,7 +132,8 @@ public class UIManager : MonoBehaviour
         ReplayManager.Instance.RestartReplay();
         EntityManager.Instance.ResetAllEntities();
         SpikeManager.Instance.ResetAllSpikes();
-          
+        TakeALifeAway(GameManager.Instance.GetPlayer().GetMaxPlayerLives());
+
     }
 
     private void FreshStart()
@@ -141,6 +142,8 @@ public class UIManager : MonoBehaviour
         ReplayManager.Instance.RestartReplay();
         EntityManager.Instance.ResetAllEntities();
         SpikeManager.Instance.ResetAllSpikes();
+        TakeALifeAway(GameManager.Instance.GetPlayer().GetMaxPlayerLives());
+
     }
 
     public void RewindReplay()
@@ -270,19 +273,30 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void TakeALifeAway()
+    public void TakeALifeAway(int currentLives)
     {
-        if (lifeOne.activeInHierarchy)
+        switch (currentLives)
         {
-            lifeOne.SetActive(false);
-        }
-        else if (lifeTwo.activeInHierarchy)
-        {
-            lifeTwo.SetActive(false);
-        }
-        else if (lifeThree.activeInHierarchy)
-        {
-            lifeThree.SetActive(false);
+            case 0:
+                lifeOne.SetActive(false);
+                lifeTwo.SetActive(false);
+                lifeThree.SetActive(false);
+                break;
+            case 1:
+                lifeOne.SetActive(false);
+                lifeTwo.SetActive(false);
+                lifeThree.SetActive(true);
+                break;
+            case 2:
+                lifeOne.SetActive(false);
+                lifeTwo.SetActive(true);
+                lifeThree.SetActive(true);
+                break;
+            case 3:
+                lifeOne.SetActive(true);
+                lifeTwo.SetActive(true);
+                lifeThree.SetActive(true);
+                break;
         }
     }
 
