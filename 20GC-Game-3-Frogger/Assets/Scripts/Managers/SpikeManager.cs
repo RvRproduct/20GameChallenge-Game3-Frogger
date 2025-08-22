@@ -113,6 +113,24 @@ public class SpikeManager : MonoBehaviour
         }
     }
 
+    public void RemoveOutlierSpikeCommands()
+    {
+        foreach (Spike spike in spikeFriendsOne)
+        {
+            spike.CleanUpOutlierCommands();
+        }
+
+        foreach (Spike spike in spikeFriendsTwo)
+        {
+            spike.CleanUpOutlierCommands();
+        }
+
+        foreach (Spike spike in spikeHaters)
+        {
+            spike.CleanUpOutlierCommands();
+        }
+    }
+
     public void ResetAllSpikes()
     {
         ForwardAllSpikes(true);

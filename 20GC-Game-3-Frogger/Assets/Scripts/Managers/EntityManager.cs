@@ -251,7 +251,7 @@ public class EntityManager : ObjectPool
 
             spawning = null;
 
-            yield return null;
+            yield return new WaitForFixedUpdate();
         }
     }
 

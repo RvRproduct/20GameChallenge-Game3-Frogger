@@ -180,7 +180,6 @@ public class UIManager : MonoBehaviour
             {
                 ReplayManager.Instance.StartReplay();
                 SpikeManager.Instance.StartReplayForAllSpikes();
-                //EntityManager.Instance.StartReplay();
             }
 
         }
@@ -213,22 +212,7 @@ public class UIManager : MonoBehaviour
             }
             else
             {
-                if (ReplayManager.Instance.GetIsStartingFromBack())
-                {
-                    // Ya.... this is a guard if you are starting from back and 
-                    // try to switch directions
-                    ReplayManager.Instance.SetIsAtEndReplay(true);
-                    EntityManager.Instance.ResetAllEntities();
-                    ReplayManager.Instance.NullAllEntitiesToCommands(false);
-                    GameManager.Instance.GetPlayer().ResetToStartingLocation();
-                    ReplayManager.Instance.ResetForForward();
-                    SpikeManager.Instance.ForwardAllSpikes(true);
-                }
-                else
-                {
-                    //ReplayManager.Instance.NullAllEntitiesToCommands(true);
-                    SpikeManager.Instance.ForwardAllSpikes(false);
-                } 
+                SpikeManager.Instance.ForwardAllSpikes(false);
             }
 
             MoveCommand currentMoveCommand = (MoveCommand)ReplayManager.Instance.GetRecordedCommands(
@@ -259,7 +243,6 @@ public class UIManager : MonoBehaviour
             {
                 ReplayManager.Instance.StartReplay();
                 SpikeManager.Instance.StartReplayForAllSpikes();
-              // EntityManager.Instance.StartReplay();
             }
 
         }
@@ -308,6 +291,7 @@ public class UIManager : MonoBehaviour
         ReplayManager.Instance.SetIsReplayPlaying(false);
         ReplayManager.Instance.SetIsInReplayMode(true);
         ReplayManager.Instance.CleanUpCommands();
+        SpikeManager.Instance.RemoveOutlierSpikeCommands();
         RestartReplay();
         replayMode.SetActive(true);
     }

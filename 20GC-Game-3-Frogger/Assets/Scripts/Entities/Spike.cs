@@ -42,11 +42,6 @@ public class Spike : MonoBehaviour
 
     public void StartSpikeReplay()
     {
-        //foreach (Command command in recordedSpikeCommands)
-        //{
-        //    Debug.Log($"Spike {GetInstanceID()} StartTick {command.startTick}");
-        //}
-
         StopAllCoroutines();
         spikeCoroutine = StartCoroutine(PlaySpikeCommands());
     }
@@ -59,20 +54,31 @@ public class Spike : MonoBehaviour
 
             if (!ReplayManager.Instance.GetIsRewinding())
             {
-                while (GameManager.Instance.GetGlobalTick() <= currentSpikeCommand.startTick)
+                if (!currentSpikeCommand.finished)
                 {
-                    yield return new WaitForFixedUpdate();
+                    while (GameManager.Instance.GetGlobalTick() < currentSpikeCommand.startTick)
+                    {
+                        yield return new WaitForFixedUpdate();
+                    }
                 }
             }
             else
             {
-                while (GameManager.Instance.GetGlobalTick() >= currentSpikeCommand.endTick)
+                if (!currentSpikeCommand.finished)
                 {
-                    yield return new WaitForFixedUpdate();
-                }
+                    while (GameManager.Instance.GetGlobalTick() > currentSpikeCommand.endTick)
+                    {
+                        yield return new WaitForFixedUpdate();
+                    }
+                } 
             }
-            
-            currentSpikeCommand.Execute();
+
+            if (!currentSpikeCommand.finished)
+            {
+                currentSpikeCommand.Execute();
+            }
+
+            yield return new WaitUntil(() => !currentSpikeCommand.finished);
 
             if (ReplayManager.Instance.GetIsReplayPlaying())
             {
@@ -80,9 +86,12 @@ public class Spike : MonoBehaviour
                 {
                     if (currentRecordedSpikeCommand < recordedSpikeCommands.Count - 1)
                     {
-                        currentSpikeCommand.finished = false;
-                        currentRecordedSpikeCommand++;
-                        spikeCommand = (SpikeCommand)recordedSpikeCommands[currentRecordedSpikeCommand];
+                        if (!currentSpikeCommand.finished)
+                        {
+                            currentRecordedSpikeCommand++;
+                            spikeCommand = (SpikeCommand)recordedSpikeCommands[currentRecordedSpikeCommand];
+                        }
+                        
                     }
                     else
                     {
@@ -94,9 +103,12 @@ public class Spike : MonoBehaviour
                 {
                     if (currentRecordedSpikeCommand > 0)
                     {
-                        currentSpikeCommand.finished = false;
-                        currentRecordedSpikeCommand--;
-                        spikeCommand = (SpikeCommand)recordedSpikeCommands[currentRecordedSpikeCommand];
+                        if (!currentSpikeCommand.finished)
+                        {
+                            currentRecordedSpikeCommand--;
+                            spikeCommand = (SpikeCommand)recordedSpikeCommands[currentRecordedSpikeCommand];
+                        }
+                        
                     }
                     else
                     {
@@ -113,10 +125,8 @@ public class Spike : MonoBehaviour
     public void PauseAnimator()
     {
         animator.speed = 0.0f;
-        StopAllCoroutines();
         spikeCoroutine = null;
-        spikeCommand.finished = true;
-        animator.SetTrigger("Deactivate");
+        //animator.SetTrigger("Deactivate");
 
         isDonePlaying = true;
     }
@@ -124,15 +134,15 @@ public class Spike : MonoBehaviour
     public void ReverseAnimator(bool reset = false)
     {
         animator.speed = 1.0f;
-        StopAllCoroutines();
         spikeCoroutine = null;
-        spikeCommand.finished = true;
+        spikeCommand.finished = false;
         TriggerDeactivate();
 
         if (reset)
         {
             currentRecordedSpikeCommand = recordedSpikeCommands.Count - 1;
             spikeCommand = recordedSpikeCommands[currentRecordedSpikeCommand];
+            
         }
 
         if (isDonePlaying)
@@ -144,9 +154,8 @@ public class Spike : MonoBehaviour
     public void ForwardAnimator(bool reset = false)
     {
         animator.speed = 1.0f;
-        StopAllCoroutines();
         spikeCoroutine = null;
-        spikeCommand.finished = true;
+        spikeCommand.finished = false;
         TriggerDeactivate();
 
         if (reset)
@@ -272,7 +281,7 @@ public class Spike : MonoBehaviour
         {
             if (spikeCommand != null)
             {
-                spikeCommand.finished = true;
+                spikeCommand.finished = false;
             }
         }
         else
@@ -280,8 +289,8 @@ public class Spike : MonoBehaviour
             if (spikeCommand != null)
             {
                 spikeCommand.endTick = GameManager.Instance.GetGlobalTick();
-                isAnimating = false;
                 spikeCommand.finished = false;
+                isAnimating = false;
             }
         }
         
@@ -296,5 +305,20 @@ public class Spike : MonoBehaviour
     {
         return new SpikeCommand(this, GameManager.Instance.GetGlobalTick(),
             true);
+    }
+
+    public void CleanUpOutlierCommands()
+    {
+        for (int commandIndex = recordedSpikeCommands.Count - 1; commandIndex > 0; commandIndex--)
+        {
+            if (recordedSpikeCommands[commandIndex].endTick <= -1)
+            {
+                recordedSpikeCommands.RemoveAt(commandIndex);
+            }
+            else
+            {
+                break;
+            }
+        }
     }
 }
