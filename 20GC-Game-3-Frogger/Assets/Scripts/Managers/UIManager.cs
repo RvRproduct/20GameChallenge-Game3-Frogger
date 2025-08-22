@@ -65,6 +65,13 @@ public class UIManager : MonoBehaviour
         unSelectedColorBlock.selectedColor = unSelectedColor;
     }
 
+    private void RefreshButtonColors()
+    {
+        pauseButton.colors = unSelectedColorBlock;
+        forwardButton.colors = unSelectedColorBlock;
+        rewindButton.colors = unSelectedColorBlock;
+    }
+
     public void PlayOrPauseReplay()
     {
         if (isPause)
@@ -96,7 +103,6 @@ public class UIManager : MonoBehaviour
                 {
                     ReplayManager.Instance.StartReplay();
                     SpikeManager.Instance.StartReplayForAllSpikes();
-                    // EntityManager.Instance.StartReplay();
                 }
             }
         }
@@ -114,17 +120,27 @@ public class UIManager : MonoBehaviour
     public void RestartReplay()
     {
         // resetting Global Tick
+        isFirstTime = true;
+        isPause = false;
+        isForward = false;
+        isRewind = false;
+        RefreshButtonColors();
+        GameManager.Instance.SetReplayDirection(ReplayDirection.Pause);
+        ReplayManager.Instance.SetIsReplayPlaying(false);
+        ReplayManager.Instance.SetIsRewinding(false);   
         GameManager.Instance.SetGlobalTick(0);
         ReplayManager.Instance.RestartReplay();
         EntityManager.Instance.ResetAllEntities();
         SpikeManager.Instance.ResetAllSpikes();
+          
+    }
 
-        if (ReplayManager.Instance.GetIsReplayPlaying())
-        {
-            ReplayManager.Instance.StartReplay();
-            SpikeManager.Instance.StartReplayForAllSpikes();
-            //EntityManager.Instance.StartReplay();
-        }
+    private void FreshStart()
+    {
+        GameManager.Instance.SetGlobalTick(0);
+        ReplayManager.Instance.RestartReplay();
+        EntityManager.Instance.ResetAllEntities();
+        SpikeManager.Instance.ResetAllSpikes();
     }
 
     public void RewindReplay()
@@ -292,7 +308,7 @@ public class UIManager : MonoBehaviour
         ReplayManager.Instance.SetIsInReplayMode(true);
         ReplayManager.Instance.CleanUpCommands();
         SpikeManager.Instance.RemoveOutlierSpikeCommands();
-        RestartReplay();
+        FreshStart();
         replayMode.SetActive(true);
     }
 

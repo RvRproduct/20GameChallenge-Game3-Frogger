@@ -95,21 +95,21 @@ public class SpikeManager : MonoBehaviour
         }
     }
 
-    public void ForwardAllSpikes(bool _reset = false)
+    public void ForwardAllSpikes(bool _reset = false, bool _fullRestart = false)
     {
         foreach (Spike spike in spikeFriendsOne)
         {
-            spike.ForwardAnimator(_reset);
+            spike.ForwardAnimator(_reset, _fullRestart);
         }
 
         foreach (Spike spike in spikeFriendsTwo)
         {
-            spike.ForwardAnimator(_reset);
+            spike.ForwardAnimator(_reset, _fullRestart);
         }
 
         foreach (Spike spike in spikeHaters)
         {
-            spike.ForwardAnimator(_reset);
+            spike.ForwardAnimator(_reset, _fullRestart);
         }
     }
 
@@ -133,7 +133,7 @@ public class SpikeManager : MonoBehaviour
 
     public void ResetAllSpikes()
     {
-        ForwardAllSpikes(true);
+        ForwardAllSpikes(true, true);
     }
 
     public void ResetSpikes()

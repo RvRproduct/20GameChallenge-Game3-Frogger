@@ -165,8 +165,13 @@ public class Spike : MonoBehaviour
         }
     }
 
-    public void ForwardAnimator(bool reset = false)
+    public void ForwardAnimator(bool reset = false, bool fullRestart = false)
     {
+        if (fullRestart)
+        {
+            FullRestart();
+        }
+
         animator.speed = 1.0f;
         if (!isPaused)
         {
@@ -340,6 +345,15 @@ public class Spike : MonoBehaviour
             {
                 break;
             }
+        }
+    }
+
+    private void FullRestart()
+    {
+        isPaused = false;
+        foreach (Command command in recordedSpikeCommands)
+        {
+            command.finished = false;
         }
     }
 }
