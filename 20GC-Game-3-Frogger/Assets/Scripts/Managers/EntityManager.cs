@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
+using PoolTags;
 
 public enum EntityTypes
 {
@@ -57,9 +57,13 @@ public class EntityManager : ObjectPool
     {
         if (spawning == null)
         {
-            if (ReplayManager.Instance.GetIsReplayPlaying())
+            if (!ReplayManager.Instance.GetIsReplayPlaying())
             {
                 spawning = StartCoroutine(SpawnEntitiesInWorld());
+            }
+            else
+            {
+                spawning = StartCoroutine(SpawnRecordedEntitiesInWorld());
             }
         }
     }
@@ -68,10 +72,20 @@ public class EntityManager : ObjectPool
     {
         if (spawning == null &&
             ReplayManager.Instance.GetIsReplayPlaying() &&
-            !ReplayManager.Instance.GetIsAtEndReplay())
+            !ReplayManager.Instance.GetIsAtEndReplay() &&
+                !ReplayManager.Instance.GetIsInReplayMode())
         {
             SpawnTimer();
-        } 
+        }
+        else
+        {
+            if (spawning == null &&
+            ReplayManager.Instance.GetIsReplayPlaying() &&
+            !ReplayManager.Instance.GetIsAtEndReplay())
+            {
+                spawning = StartCoroutine(SpawnRecordedEntitiesInWorld());
+            }
+        }
     }
 
     private void SpawnTimer()
@@ -98,6 +112,101 @@ public class EntityManager : ObjectPool
     {
         StopAllCoroutines();
         StartCoroutine(ReplayManager.Instance.PlayRecordedCommands(CommandType.Spawning));
+    }
+
+    private IEnumerator SpawnRecordedEntitiesInWorld()
+    {
+        while(true)
+        {
+            yield return new WaitUntil(() => ReplayManager.Instance.GetIsReplayPlaying());
+
+            if (ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.Bat) >= 0 &&
+                    ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.Bat) <=
+                    ReplayManager.Instance.GetRecordedCommands(
+                        CommandType.EntityMoving, EntityTypes.Bat).Count - 1)
+            {
+                EntityMoveCommand currentBatCommand = (EntityMoveCommand)
+                ReplayManager.Instance.GetRecordedCommands(
+                CommandType.EntityMoving, EntityTypes.Bat)
+                [ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.Bat)];
+
+                SpawnEntityNormal(EntityTags.BatEntity,
+                    VectorConversions.ToUnity(currentBatCommand.GetStartPosition()));
+            }
+
+            if (ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.Skeleton) >= 0 &&
+                    ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.Skeleton) <=
+                    ReplayManager.Instance.GetRecordedCommands(
+                        CommandType.EntityMoving, EntityTypes.Skeleton).Count - 1)
+            {
+                EntityMoveCommand currentSkeletonCommand = (EntityMoveCommand)
+                ReplayManager.Instance.GetRecordedCommands(
+                CommandType.EntityMoving, EntityTypes.Skeleton)
+                [ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.Skeleton)];
+
+                SpawnEntityNormal(EntityTags.SkeletonEntity,
+                    VectorConversions.ToUnity(currentSkeletonCommand.GetStartPosition()));
+            }
+
+            if (ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.SlimeB) >= 0 &&
+                    ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.SlimeB) <=
+                    ReplayManager.Instance.GetRecordedCommands(
+                        CommandType.EntityMoving, EntityTypes.SlimeB).Count - 1)
+            {
+                EntityMoveCommand currentSlimeBCommand = (EntityMoveCommand)
+                ReplayManager.Instance.GetRecordedCommands(
+                CommandType.EntityMoving, EntityTypes.SlimeB)
+                [ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.SlimeB)];
+
+                SpawnEntityNormal(EntityTags.SlimeBEntity,
+                    VectorConversions.ToUnity(currentSlimeBCommand.GetStartPosition()));
+            }
+
+            if (ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.SlimeG) >= 0 &&
+                    ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.SlimeG) <=
+                    ReplayManager.Instance.GetRecordedCommands(
+                        CommandType.EntityMoving, EntityTypes.SlimeG).Count - 1)
+            {
+                EntityMoveCommand currentSlimeGCommand = (EntityMoveCommand)
+                ReplayManager.Instance.GetRecordedCommands(
+                CommandType.EntityMoving, EntityTypes.SlimeG)
+                [ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.SlimeG)];
+
+                SpawnEntityNormal(EntityTags.SlimeGEntity,
+                    VectorConversions.ToUnity(currentSlimeGCommand.GetStartPosition()));
+            }
+
+            if (ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.SlimeR) >= 0 &&
+                    ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.SlimeR) <=
+                    ReplayManager.Instance.GetRecordedCommands(
+                        CommandType.EntityMoving, EntityTypes.SlimeR).Count - 1)
+            {
+                EntityMoveCommand currentSlimeRCommand = (EntityMoveCommand)
+                ReplayManager.Instance.GetRecordedCommands(
+                CommandType.EntityMoving, EntityTypes.SlimeR)
+                [ReplayManager.Instance.GetCurrentRecordedCommand(
+                    CommandType.EntityMoving, EntityTypes.SlimeR)];
+
+                SpawnEntityNormal(EntityTags.SlimeREntity,
+                    VectorConversions.ToUnity(currentSlimeRCommand.GetStartPosition()));
+            }
+
+            yield return new WaitForFixedUpdate();
+        }
     }
 
     private IEnumerator SpawnEntitiesInWorld()
@@ -262,6 +371,7 @@ public class EntityManager : ObjectPool
     private void CheckReplaySpawnPoint(string entityTag, EntityLocationPlacement entityLocation)
     {
         float reflectSpawnPointXAxis = -1.0f;
+
         if (!ReplayManager.Instance.GetIsRewinding())
         {
             foreach (Transform spawnPoint in entityLocation.entitySpawnPoint)

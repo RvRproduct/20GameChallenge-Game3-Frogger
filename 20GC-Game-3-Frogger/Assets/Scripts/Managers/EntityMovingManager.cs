@@ -36,12 +36,22 @@ public class EntityMovingManager : MonoBehaviour
             else
             {
                 entity.CleanUpOutlier();
-            }    
+            }
+
+            bool inWindow = (!ReplayManager.Instance.GetIsRewinding() &&
+                GameManager.Instance.GetGlobalTick() >= currentEntityMoveCommand.startTick) ||
+                (ReplayManager.Instance.GetIsRewinding() && GameManager.Instance.GetGlobalTick()
+                <= currentEntityMoveCommand.endTick);
             
-            currentEntityMoveCommand.Execute();
+            if (inWindow && !currentEntityMoveCommand.finished)
+            {
+                currentEntityMoveCommand.Execute();
+            }
+
 
             if (ReplayManager.Instance.GetIsInReplayMode() &&
-                ReplayManager.Instance.GetIsReplayPlaying())
+                ReplayManager.Instance.GetIsReplayPlaying() &&
+                currentEntityMoveCommand.finished)
             {
                 if (!ReplayManager.Instance.GetIsRewinding())
                 {

@@ -224,7 +224,6 @@ public class Spike : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Trying to Reverse");
                     animator.SetTrigger("ReverseActivate");
                     
                 }

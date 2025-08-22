@@ -226,7 +226,7 @@ public class UIManager : MonoBehaviour
                 }
                 else
                 {
-                    ReplayManager.Instance.NullAllEntitiesToCommands(true);
+                    //ReplayManager.Instance.NullAllEntitiesToCommands(true);
                     SpikeManager.Instance.ForwardAllSpikes(false);
                 } 
             }

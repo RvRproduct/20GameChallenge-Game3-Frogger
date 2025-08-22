@@ -108,46 +108,22 @@ public class Entity : BasePoolObject
         {
             yield return new WaitUntil(() => ReplayManager.Instance.GetIsReplayPlaying());
 
-            float moveProgress = 0.0f;
+            float moveProgress = (GameManager.Instance.GetGlobalTick() - entityMoveCommand.startTick)
+                / (float)durationTicks;
 
-            if (!ReplayManager.Instance.GetIsRewinding())
-            {
-                moveProgress = (GameManager.Instance.GetGlobalTick() - entityMoveCommand.startTick)
-                    / (float)durationTicks;
+            moveProgress = Mathf.Clamp01(moveProgress);
 
-            }
-            else
-            {
-                if (!ReplayManager.Instance.GetIsStartingFromBack())
-                {
-                    moveProgress = ((GameManager.Instance.GetGlobalTick() - entityMoveCommand.startTick)
-                    / (float)durationTicks * -1);
-                }
-                else
-                {
-                    moveProgress = ((GameManager.Instance.GetGlobalTick() - entityMoveCommand.endTick)
-                    / (float)durationTicks * -1);
-                }
-            }
-
-            if (!ReplayManager.Instance.GetIsRewinding())
-            {
-                transform.position = Vector3.Lerp(
-                    VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
-                    VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition()),
+            transform.position = Vector3.Lerp(
+                        VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
+                        VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition()),
                     moveProgress);
 
-                if (moveProgress >= 1.0f) { isDoneMoving = true; }
-            }
-            else
+            if ((!ReplayManager.Instance.GetIsRewinding() && GameManager.Instance.GetGlobalTick() >= entityMoveCommand.endTick) ||
+                ReplayManager.Instance.GetIsRewinding() && GameManager.Instance.GetGlobalTick() <= entityMoveCommand.startTick)
             {
-                transform.position = Vector3.Lerp(
-                    VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetEndPosition())
-                    , VectorConversions.ToUnity(((EntityMoveCommand)entityMoveCommand).GetStartPosition()),
-                    moveProgress);
-                if (moveProgress >= 1.0f) { isDoneMoving = true; }
+                isDoneMoving = true;
             }
-            
+
             yield return new WaitForFixedUpdate();
         }
 
