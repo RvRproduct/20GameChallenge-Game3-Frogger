@@ -17,6 +17,7 @@ public class Spike : MonoBehaviour
     private Coroutine spikeCoroutine = null;
     private bool isDonePlaying = false;
     private bool isAnimating = false;
+    private bool isPaused = false;
 
     private void Awake()
     {
@@ -42,8 +43,11 @@ public class Spike : MonoBehaviour
 
     public void StartSpikeReplay()
     {
-        StopAllCoroutines();
-        spikeCoroutine = StartCoroutine(PlaySpikeCommands());
+        if (spikeCoroutine == null)
+        {
+            StopAllCoroutines();
+            spikeCoroutine = StartCoroutine(PlaySpikeCommands());
+        }
     }
 
     private IEnumerator PlaySpikeCommands()
@@ -125,7 +129,9 @@ public class Spike : MonoBehaviour
     public void PauseAnimator()
     {
         animator.speed = 0.0f;
-        spikeCoroutine = null;
+        isPaused = true;
+        //spikeCoroutine = null;
+        //spikeCommand.finished = false;
         //animator.SetTrigger("Deactivate");
 
         isDonePlaying = true;
@@ -134,15 +140,23 @@ public class Spike : MonoBehaviour
     public void ReverseAnimator(bool reset = false)
     {
         animator.speed = 1.0f;
-        spikeCoroutine = null;
-        spikeCommand.finished = false;
-        TriggerDeactivate();
+        if (!isPaused)
+        {
+            spikeCoroutine = null;
+            spikeCommand.finished = false;
+            TriggerDeactivate();
+        }
+        else
+        {
+            isPaused = false;
+        }
+
 
         if (reset)
         {
             currentRecordedSpikeCommand = recordedSpikeCommands.Count - 1;
             spikeCommand = recordedSpikeCommands[currentRecordedSpikeCommand];
-            
+
         }
 
         if (isDonePlaying)
@@ -154,9 +168,16 @@ public class Spike : MonoBehaviour
     public void ForwardAnimator(bool reset = false)
     {
         animator.speed = 1.0f;
-        spikeCoroutine = null;
-        spikeCommand.finished = false;
-        TriggerDeactivate();
+        if (!isPaused)
+        {
+            spikeCoroutine = null;
+            spikeCommand.finished = false;
+            TriggerDeactivate();
+        }
+        else
+        {
+            isPaused = false;
+        }
 
         if (reset)
         {
