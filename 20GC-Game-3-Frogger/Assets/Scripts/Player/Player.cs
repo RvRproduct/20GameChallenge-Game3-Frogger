@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -225,6 +226,7 @@ public class Player : MonoBehaviour
     {
         if (currentPlayerLives >= 1)
         {
+            SoundManager.Instance.PlayDieSound();
             if (!ReplayManager.Instance.GetIsInReplayMode())
             {
                 if (moveCommand != null)
@@ -268,6 +270,10 @@ public class Player : MonoBehaviour
             boxCollider2D.enabled = true;
             isHitByKillingEntity = false;
             SetTriggerIdle();
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
        
     }
@@ -314,7 +320,7 @@ public class Player : MonoBehaviour
                     {
                         ((MoveCommand)moveCommand).SetHitTreasure(true);
                     }
-                    
+                    SoundManager.Instance.PlayWinSound();
                     GameManager.Instance.GetTreasure().TriggerOpen();
                 }
 
