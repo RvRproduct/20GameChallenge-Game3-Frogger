@@ -45,6 +45,8 @@ public class UIManager : MonoBehaviour
     private bool isRewind = false;
     private bool isPause = false;
     private bool isFirstTime = true;
+
+    private int storedCurrentLives;
     private void Awake()
     {
         if (Instance == null)
@@ -63,6 +65,8 @@ public class UIManager : MonoBehaviour
         unSelectedColorBlock = pauseButton.colors;
         unSelectedColorBlock.normalColor = unSelectedColor;
         unSelectedColorBlock.selectedColor = unSelectedColor;
+
+        storedCurrentLives = GameManager.Instance.GetPlayer().GetMaxPlayerLives();
     }
 
     private void RefreshButtonColors()
@@ -277,29 +281,34 @@ public class UIManager : MonoBehaviour
 
     public void TakeALifeAway(int currentLives)
     {
-        switch (currentLives)
+        if (storedCurrentLives != currentLives)
         {
-            case 0:
-                lifeOne.SetActive(false);
-                lifeTwo.SetActive(false);
-                lifeThree.SetActive(false);
-                break;
-            case 1:
-                lifeOne.SetActive(false);
-                lifeTwo.SetActive(false);
-                lifeThree.SetActive(true);
-                break;
-            case 2:
-                lifeOne.SetActive(false);
-                lifeTwo.SetActive(true);
-                lifeThree.SetActive(true);
-                break;
-            case 3:
-                lifeOne.SetActive(true);
-                lifeTwo.SetActive(true);
-                lifeThree.SetActive(true);
-                break;
+            storedCurrentLives = currentLives;
+            switch (currentLives)
+            {
+                case 0:
+                    lifeOne.SetActive(false);
+                    lifeTwo.SetActive(false);
+                    lifeThree.SetActive(false);
+                    break;
+                case 1:
+                    lifeOne.SetActive(false);
+                    lifeTwo.SetActive(false);
+                    lifeThree.SetActive(true);
+                    break;
+                case 2:
+                    lifeOne.SetActive(false);
+                    lifeTwo.SetActive(true);
+                    lifeThree.SetActive(true);
+                    break;
+                case 3:
+                    lifeOne.SetActive(true);
+                    lifeTwo.SetActive(true);
+                    lifeThree.SetActive(true);
+                    break;
+            }
         }
+        
     }
 
     public void UpdateCountDownTimer(int currentCountDown)
