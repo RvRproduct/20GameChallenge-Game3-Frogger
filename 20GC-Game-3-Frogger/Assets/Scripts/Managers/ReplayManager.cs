@@ -243,7 +243,6 @@ public class ReplayManager : MonoBehaviour
         currentRecordedSpawningCommand = 0;
         RefreshCurrentRecordedEntity();
         GameManager.Instance.GetPlayer().SetTriggerIdle();
-        GameManager.Instance.GetPlayer().SetTriggerWalk();
     }
 
     public void SetEndReplayTick(int _endReplayTick)
@@ -440,6 +439,7 @@ public class ReplayManager : MonoBehaviour
                     !((EntityMoveCommand)currentEntityCommand).GetEntity().isActiveAndEnabled)
                 {
                     ((EntityMoveCommand)currentEntityCommand).SetEntity(null);
+                    ((EntityMoveCommand)currentEntityCommand).finished = false;
                 }
             }
             

@@ -226,7 +226,6 @@ public class Player : MonoBehaviour
     {
         if (currentPlayerLives >= 1)
         {
-            SoundManager.Instance.PlayDieSound();
             if (!ReplayManager.Instance.GetIsInReplayMode())
             {
                 if (moveCommand != null)
@@ -245,6 +244,7 @@ public class Player : MonoBehaviour
             {
                 boxCollider2D.enabled = false;
                 isDead = true;
+                SoundManager.Instance.PlayDieSound();
                 SetTriggerDeath(); 
             }
             else
@@ -253,7 +253,6 @@ public class Player : MonoBehaviour
                 {
                     isHitByKillingEntity = false;
                 }
-                ResetToStartingLocation();
             }
             
         }
@@ -383,6 +382,11 @@ public class Player : MonoBehaviour
         StopAllCoroutines();
         playerMoving = null;
         moveCommand = null;
+
+        foreach (Command command in ReplayManager.Instance.GetRecordedCommands(CommandType.PlayerMoving))
+        {
+            command.finished = false;
+        }
     }
 
     // Animation

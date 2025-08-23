@@ -1,4 +1,5 @@
 // Game and Code By RvRproduct (Roberto Valentino Reynoso)
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -44,7 +45,6 @@ public class UIManager : MonoBehaviour
     private bool isRewind = false;
     private bool isPause = false;
     private bool isFirstTime = true;
-
     private void Awake()
     {
         if (Instance == null)
@@ -131,6 +131,7 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.SetGlobalTick(0);
         ReplayManager.Instance.RestartReplay();
         EntityManager.Instance.ResetAllEntities();
+        ReplayManager.Instance.NullAllEntitiesToCommands(false);
         SpikeManager.Instance.ResetAllSpikes();
         TakeALifeAway(GameManager.Instance.GetPlayer().GetMaxPlayerLives());
 
@@ -231,6 +232,7 @@ public class UIManager : MonoBehaviour
             }
             else
             {
+                ReplayManager.Instance.NullAllEntitiesToCommands(true);
                 SpikeManager.Instance.ForwardAllSpikes(false);
             }
 
