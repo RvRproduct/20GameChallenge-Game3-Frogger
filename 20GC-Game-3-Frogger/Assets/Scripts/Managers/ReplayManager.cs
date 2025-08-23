@@ -432,6 +432,7 @@ public class ReplayManager : MonoBehaviour
             if (!resetMidWay)
             {
                 ((EntityMoveCommand)currentEntityCommand).SetEntity(null);
+                ((EntityMoveCommand)currentEntityCommand).finished = false;
             }
             else
             {
