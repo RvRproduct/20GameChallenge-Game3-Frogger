@@ -51,7 +51,8 @@ public class InputHandler : MonoBehaviour
 
     private void ApplyMovement(InputAction.CallbackContext context)
     {
-        if (!player.GetInMiddleOfMoveCommand() && !GameManager.Instance.GetPlayer().GetIsDead())
+        if (!player.GetInMiddleOfMoveCommand() && !GameManager.Instance.GetPlayer().GetIsDead() &&
+            !ReplayManager.Instance.GetIsInReplayMode() && !Treasure.Instance.GetIsOpen())
         {
             player.SetInMiddleOfMoveCommand(true);
             if (inputControls != null && gameObject != null)

@@ -238,9 +238,12 @@ public class ReplayManager : MonoBehaviour
         GameManager.Instance.ResetCurrentCountDown();
         GameManager.Instance.SetPlayerStartingLocation(
         GameManager.Instance.GetPlayer().GetPlayerStartingLocation());
+        GameManager.Instance.GetPlayer().StopCoroutineOnReset();
         currentRecordedPlayerMovingCommand = 0;
         currentRecordedSpawningCommand = 0;
         RefreshCurrentRecordedEntity();
+        GameManager.Instance.GetPlayer().SetTriggerIdle();
+        GameManager.Instance.GetPlayer().SetTriggerWalk();
     }
 
     public void SetEndReplayTick(int _endReplayTick)

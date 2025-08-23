@@ -378,13 +378,20 @@ public class Player : MonoBehaviour
         return maxPlayerLives;
     }
 
+    public void StopCoroutineOnReset()
+    {
+        StopAllCoroutines();
+        playerMoving = null;
+        moveCommand = null;
+    }
+
     // Animation
-    private void SetTriggerIdle()
+    public void SetTriggerIdle()
     {
         animator.SetTrigger("Idle");
     }
 
-    private void SetTriggerWalk()
+    public void SetTriggerWalk()
     {
         animator.SetTrigger("Walk");
     }
