@@ -144,6 +144,7 @@ public class Spike : MonoBehaviour
         {
             spikeCoroutine = null;
             spikeCommand.finished = false;
+            DeactivateCollision();
             TriggerDeactivate();
         }
         else
@@ -156,6 +157,7 @@ public class Spike : MonoBehaviour
         {
             currentRecordedSpikeCommand = recordedSpikeCommands.Count - 1;
             spikeCommand = recordedSpikeCommands[currentRecordedSpikeCommand];
+            DeactivateCollision();
 
         }
 
@@ -177,6 +179,7 @@ public class Spike : MonoBehaviour
         {
             spikeCoroutine = null;
             spikeCommand.finished = false;
+            DeactivateCollision();
             TriggerDeactivate();
         }
         else
@@ -188,6 +191,7 @@ public class Spike : MonoBehaviour
         {
             currentRecordedSpikeCommand = 0;
             spikeCommand = recordedSpikeCommands[currentRecordedSpikeCommand];
+            DeactivateCollision();
         }
 
         if (isDonePlaying)
